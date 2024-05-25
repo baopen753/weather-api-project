@@ -13,7 +13,7 @@ public interface ILocationService {
 
     List<Location> findLocationByCountryCodeAndRegionCode(String regionName, String countryCode);
 
-    Location save(LocationDto locationDto);
+    Location save(Location location);
 
     Location update(LocationDto locationDto);
 

@@ -14,4 +14,6 @@ public interface LocationRepository extends JpaRepository<Location, String> {
     @Query("SELECT l FROM Location l WHERE l.regionName ilike %?1% AND l.countryCode ilike %?2%")
     public List<Location> findByCountryCodeAndRegionName(String regionName , String countryCode);
 
+
+
 }

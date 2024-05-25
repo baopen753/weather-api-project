@@ -2,6 +2,7 @@ package com.baopen753.weatherapiproject.locationservices.service.impl;
 
 import com.baopen753.weatherapiproject.locationservices.dto.LocationDto;
 import com.baopen753.weatherapiproject.locationservices.entity.Location;
+import com.baopen753.weatherapiproject.locationservices.exception.LocationExistedException;
 import com.baopen753.weatherapiproject.locationservices.exception.LocationNotFoundException;
 import com.baopen753.weatherapiproject.locationservices.repository.LocationRepository;
 import com.baopen753.weatherapiproject.locationservices.service.ILocationService;
@@ -34,7 +35,7 @@ public class LocationServiceImpl implements ILocationService {
     }
 
     @Override
-    public List<Location> findLocationByCountryCodeAndRegionCode(String regionName, String countryCode ) {
+    public List<Location> findLocationByCountryCodeAndRegionCode(String regionName, String countryCode) {
 
         try {
             List<Location> locations = locationRepository.findByCountryCodeAndRegionName(regionName, countryCode);
@@ -46,8 +47,13 @@ public class LocationServiceImpl implements ILocationService {
     }
 
     @Override
-    public Location save(LocationDto locationDto) {
-        return null;
+    public Location save(Location location) {
+        try {
+            Location addedLocation = locationRepository.save(location);
+            return addedLocation;
+        } catch (LocationExistedException exception) {
+            throw new LocationExistedException("The location with ID " + location.getCode() + " is exised. Try again !");
+        }
     }
 
     @Override
