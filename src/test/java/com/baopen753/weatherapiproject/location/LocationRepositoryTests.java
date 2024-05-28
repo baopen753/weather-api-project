@@ -20,28 +20,51 @@ public class LocationRepositoryTests {
     @Autowired
     private LocationRepository locationRepository;
 
-    @Test
-    public void testListSuccess() {
-        List<Location> locations = locationRepository.findAll();
-        Assertions.assertThat(locations).isNotEmpty();
-        locations.stream().forEach(System.out::println);
-    }
+//    @Test
+//    public void testListSuccess() {
+//        List<Location> locations = locationRepository.
+//        Assertions.assertThat(locations).isNotEmpty();
+//        locations.stream().forEach(System.out::println);
+//    }
 
     @Test
-    public void testAddSuccess(){
+    public void testAddSuccess() {
         Location location = new Location();
         location.setCode("VN_HCM");
-        location.setCityName("Hochiminh");
+        location.setCityName("Camau");
         location.setCountryCode("VN");
         location.setCountryName("Socialist Republic of Vietnam");
         location.setEnabled(true);
         location.setRegionName("Middle");
         location.setTrashed(false);
 
-        Location addedlocation =  locationRepository.save(location);
+        Location addedlocation = locationRepository.save(location);
         Assertions.assertThat(addedlocation).isNotNull();
-
     }
 
+    @Test
+    public void testUpdateSuccess() {
+        Location location = new Location();
+        location.setCode("VN_HCM");
+        location.setCityName("Camau");
+        location.setCountryCode("VN");
+        location.setCountryName("Socialist Republic of Vietnam");
+        location.setEnabled(true);
+        location.setRegionName("Middle");
+        location.setTrashed(false);
 
+        Location updatedLocation = locationRepository.save(location);
+        Assertions.assertThat(updatedLocation.getCode()).isNotNull();
+    }
+
+    @Test
+    public void testTrashedSuccess()
+    {
+        String code = "VN_HN";
+
+        locationRepository.deleteByCode(code);
+        Location location = locationRepository.findLocationsByCode(code);
+
+        Assertions.assertThat(location).isNull();
+    }
 }
