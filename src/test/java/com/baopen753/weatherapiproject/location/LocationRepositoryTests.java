@@ -30,13 +30,12 @@ public class LocationRepositoryTests {
     @Test
     public void testAddSuccess() {
         Location location = new Location();
-        location.setCode("VN_HCM");
-        location.setCityName("Camau");
+        location.setCode("VN_NT");
+        location.setCityName("Nhatrang");
         location.setCountryCode("VN");
         location.setCountryName("Socialist Republic of Vietnam");
         location.setEnabled(true);
         location.setRegionName("Middle");
-        location.setTrashed(false);
 
         Location addedlocation = locationRepository.save(location);
         Assertions.assertThat(addedlocation).isNotNull();

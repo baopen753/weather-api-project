@@ -1,12 +1,14 @@
 package com.baopen753.weatherapiproject.locationservices.restcontroller;
 
 import com.baopen753.weatherapiproject.locationservices.entity.Location;
+import com.baopen753.weatherapiproject.locationservices.error.global.ErrorDTO;
+import com.baopen753.weatherapiproject.locationservices.exception.LocationExistedException;
 import com.baopen753.weatherapiproject.locationservices.exception.LocationNotFoundException;
 import com.baopen753.weatherapiproject.locationservices.service.LocationService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -40,21 +42,25 @@ public class LocationRestController {
             Location location = locationService.findLocationByCode(code);
             return ResponseEntity.ok(location);
         } catch (LocationNotFoundException exception) {
-            return ResponseEntity.status(404).build();
+            return new ResponseEntity<>(HttpStatusCode.valueOf(404));
         }
     }
 
 
     @PostMapping
-    public ResponseEntity<Location> addLocation(@Valid @RequestBody Location location, BindingResult bindingResult) {   // BindingResult is used to collect validation errors
+    public ResponseEntity<?> addLocation(@Valid @RequestBody Location location) {   // BindingResult is used to collect validation errors
+                                                                                    // no need to add BindingResult in here, leeds to be incompatible Error Response Customizing
 
-        Location locationCheckExisted = locationService.checkLocationExist(location.getCode());
-        if (locationCheckExisted != null) return ResponseEntity.status(409).build();
-        Location persistedLocation = locationService.create(location);
-        URI uri = URI.create("/api/v1/locations/" + location.getCode());
-        return ResponseEntity.created(uri).body(persistedLocation);
-
+        try {
+            Location createdLocation = locationService.create(location);
+            URI uri = URI.create("/api/v1/locations/" + location.getCode());
+            return ResponseEntity.created(uri).body(createdLocation);
+        } catch (LocationExistedException ex) {
+            ErrorDTO error = new ErrorDTO("Location already existed");
+            return ResponseEntity.status(HttpStatusCode.valueOf(409)).body(error);
+        }
     }
+
 
 
     @PutMapping

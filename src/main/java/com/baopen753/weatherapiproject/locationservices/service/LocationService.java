@@ -11,12 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-@Transactional
 public class LocationService {
 
 
     private LocationRepository locationRepository;
 
+    @Autowired
     public LocationService(LocationRepository locationRepository) {
         this.locationRepository = locationRepository;
     }
@@ -33,9 +33,8 @@ public class LocationService {
 
     public Location checkLocationExist(String code) {
         Location location = this.locationRepository.findLocationsByCode(code);
-        return location == null ? location : null;
+        return location != null ? location : null;
     }
-
 
 
     public List<Location> findLocationByCountryCode(String countryCode) throws LocationNotFoundException {
@@ -46,16 +45,16 @@ public class LocationService {
     }
 
 
+   @Transactional
     public Location create(Location location) throws LocationExistedException {
-        try {
-            Location addedLocation = locationRepository.save(location);
-            return addedLocation;
-        } catch (LocationExistedException exception) {
-            throw new LocationExistedException("The location with ID " + location.getCode() + " is existed. Try again !");
-        }
+        Location locationInDb = locationRepository.findLocationsByCode(location.getCode());
+        if(locationInDb!=null)
+            throw new LocationExistedException("Duplicated location code. Try again !");
+        return locationRepository.save(location);
     }
 
 
+    @Transactional
     public Location update(Location locationInRequest) throws LocationNotFoundException {
 
         String codeInRequest = locationInRequest.getCode();
@@ -74,8 +73,9 @@ public class LocationService {
 
 
     @Transactional
-    public void delete(String code) throws LocationNotFoundException{
-        if(!locationRepository.existsById(code))
+    public void delete(String code) throws LocationNotFoundException {
+        Location locationInDb = locationRepository.findLocationsByCode(code);
+        if (locationInDb == null)
             throw new LocationNotFoundException(("Not found location with id: " + code));
         locationRepository.deleteByCode(code);
     }

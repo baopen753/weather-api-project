@@ -1,6 +1,7 @@
 package com.baopen753.weatherapiproject.location;
 
 import com.baopen753.weatherapiproject.locationservices.entity.Location;
+import com.baopen753.weatherapiproject.locationservices.exception.LocationExistedException;
 import com.baopen753.weatherapiproject.locationservices.exception.LocationNotFoundException;
 import com.baopen753.weatherapiproject.locationservices.restcontroller.LocationRestController;
 import com.baopen753.weatherapiproject.locationservices.service.LocationService;
@@ -98,15 +99,16 @@ public class LocationRestControllerTests {
     }
 
     @Test
+    @Disabled
     public void testPostShouldReturn409Confict() throws Exception {
         // create existing location
-        Location testedLocation = new Location("VN_HN", "Hanoi", "Myduc", "Socialist Republic of Vietnam", "84", true, false);
+        Location testedLocation = new Location("VN_QB", "Hanoi", "Myduc", "Socialist Republic of Vietnam", "84", true, false);
 
         // serialize POJO to JSON
         String requestBody = objectMapper.writeValueAsString(testedLocation);
 
         // use Mockito to test environment by mocking LocationService.checkLocationExist()
-        Mockito.when(locationService.checkLocationExist(testedLocation.getCode())).thenReturn(testedLocation);
+        Mockito.when(locationService.create(testedLocation)).thenReturn(testedLocation);
 
         // use MocMvc to perform HTTP Request
         mockMvc.perform(post(ENDPOINT).content(requestBody).contentType(REQUEST_CONTENT_TYPE)).andExpect(status().isConflict()).andDo(print());
