@@ -1,13 +1,16 @@
 package com.baopen753.weatherapiproject.locationservices.restcontroller;
 
+/*Taking note:
+ *    1. This RestController class should be directly called Service method . No need to catch Exception due to the existing of GlobalHandleException
+ * */
+
+
 import com.baopen753.weatherapiproject.locationservices.entity.Location;
-import com.baopen753.weatherapiproject.locationservices.error.global.ErrorDTO;
 import com.baopen753.weatherapiproject.locationservices.exception.LocationExistedException;
 import com.baopen753.weatherapiproject.locationservices.exception.LocationNotFoundException;
 import com.baopen753.weatherapiproject.locationservices.service.LocationService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,69 +23,49 @@ import java.util.List;
 public class LocationRestController {
 
 
-    private LocationService locationService;
+    private LocationService service;
 
     @Autowired
     public LocationRestController(LocationService locationService) {
-        this.locationService = locationService;
+        this.service = locationService;
     }
 
 
     @GetMapping
     public ResponseEntity<List<Location>> getLocations() {
-        List<Location> locationList = locationService.findAllLocations();
+        List<Location> locationList = service.findAllLocations();
         if (locationList.isEmpty()) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(locationList);
     }
 
 
     @GetMapping("/{code}")
-    public ResponseEntity<Location> findLocationByCode(@PathVariable("code") String code) {
-        try {
-            Location location = locationService.findLocationByCode(code);
-            return ResponseEntity.ok(location);
-        } catch (LocationNotFoundException exception) {
-            return new ResponseEntity<>(HttpStatusCode.valueOf(404));
-        }
+    public ResponseEntity<?> findLocationByCode(@PathVariable("code") String code) {
+        Location location = service.findLocationByCode(code);
+        return ResponseEntity.ok(location);
     }
 
 
     @PostMapping
-    public ResponseEntity<?> addLocation(@Valid @RequestBody Location location) {   // BindingResult is used to collect validation errors
-                                                                                    // no need to add BindingResult in here, leeds to be incompatible Error Response Customizing
+    public ResponseEntity<?> addLocation(@Valid @RequestBody Location location) {
+        Location createdLocation = service.create(location);
+        URI uri = URI.create("/api/v1/locations/" + location.getCode());
+        return ResponseEntity.created(uri).body(createdLocation);
 
-        try {
-            Location createdLocation = locationService.create(location);
-            URI uri = URI.create("/api/v1/locations/" + location.getCode());
-            return ResponseEntity.created(uri).body(createdLocation);
-        } catch (LocationExistedException ex) {
-            ErrorDTO error = new ErrorDTO("Location already existed");
-            return ResponseEntity.status(HttpStatusCode.valueOf(409)).body(error);
-        }
     }
 
 
-
     @PutMapping
-    public ResponseEntity<Location> updateLocation(@Valid @RequestBody Location location) {
-        try {
-            Location updatedLocation = locationService.update(location);
-            return ResponseEntity.ok(updatedLocation);
-        } catch (LocationNotFoundException exception) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<?> updateLocation(@Valid @RequestBody Location location) {
+        Location updatedLocation = service.update(location);
+        return ResponseEntity.ok(updatedLocation);
     }
 
 
     @DeleteMapping("{code}")
     public ResponseEntity<?> deleteLocation(@PathVariable String code) {
-        try {
-            locationService.delete(code);
-            return ResponseEntity.noContent().build();
-        } catch (LocationNotFoundException exception) {
-            return ResponseEntity.notFound().build();
-        }
-
+        service.delete(code);
+        return ResponseEntity.noContent().build();
     }
 
 }

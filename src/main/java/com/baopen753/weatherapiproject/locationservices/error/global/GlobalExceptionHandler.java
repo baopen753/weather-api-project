@@ -1,8 +1,11 @@
 package com.baopen753.weatherapiproject.locationservices.error.global;
 
 
+import com.baopen753.weatherapiproject.locationservices.exception.LocationExistedException;
+import com.baopen753.weatherapiproject.locationservices.exception.LocationNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 
+import lombok.extern.java.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +29,7 @@ import java.util.Date;
 import java.util.List;
 
 @ControllerAdvice  // define a global exception handling
-public class GlobalExceptionHandler  extends ResponseEntityExceptionHandler {
+public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     // private static final Logger LOGGER = LoggerFactory.getLogger(LocationNotFoundException.class);
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
@@ -35,7 +38,10 @@ public class GlobalExceptionHandler  extends ResponseEntityExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     public ErrorDTO handleGenericException(HttpServletRequest request, Exception exception) {
-                                                                                                // to customize fields (default message) of Error HTTP response PROTOTYPE
+
+        LOGGER.error("This is a log message: " + exception.getMessage());
+
+        // to customize fields (default message) of Error HTTP response PROTOTYPE
         ErrorDTO error = new ErrorDTO();                                                        /*   this is a customized prototype of Error HTTP Response
                                                                                                     {
                                                                                                         "timeStamp": "2024-05-30T03:34:24.943+00:00",
@@ -51,9 +57,47 @@ public class GlobalExceptionHandler  extends ResponseEntityExceptionHandler {
         error.addError(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
         error.setPath(request.getServletPath());
 
-        LOGGER.error("This is a log message: " + exception.getMessage());
 
         return error;
+    }
+
+
+    @ExceptionHandler(LocationNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseBody
+    public ErrorDTO handleLocationNotFoundException(HttpServletRequest request, Exception exception) {
+        // Logger the error message
+        LOGGER.error("This is a log message : " + exception.getMessage());
+
+        // create Error object
+        ErrorDTO errorDTO = new ErrorDTO();
+
+        // set Error object by customized error
+        errorDTO.setTimeStamp(new Date());
+        errorDTO.setStatus(HttpStatus.NOT_FOUND.value());
+        errorDTO.addError(exception.getMessage());
+        errorDTO.setPath(request.getServletPath());
+
+        return errorDTO;
+    }
+
+    @ExceptionHandler(LocationExistedException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseBody
+    public ErrorDTO handleLocationExistedException(HttpServletRequest request, Exception exception) {
+        // Logger the error message
+        LOGGER.error("This is log message: " + exception.getMessage());
+
+        // Create Error object
+        ErrorDTO errorDTO = new ErrorDTO();
+
+        // Set error object by customized error
+        errorDTO.setTimeStamp(new Date());
+        errorDTO.setStatus(HttpStatus.CONFLICT.value());
+        errorDTO.addError(exception.getMessage());
+        errorDTO.setPath(request.getServletPath());
+
+        return errorDTO;
     }
 
 
@@ -69,7 +113,6 @@ public class GlobalExceptionHandler  extends ResponseEntityExceptionHandler {
 
         List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors();
 
-        final boolean[] isNull = {true};
         fieldErrors.forEach(fieldError -> {
             error.addError(fieldError.getDefaultMessage());
         });

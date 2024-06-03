@@ -1,5 +1,15 @@
 package com.baopen753.weatherapiproject.locationservices.entity;
 
+/*Taking note:
+ *    1. + This Location class is still in developing.   (30/5/2024)
+ *       + Location entity class should not contain @Validation annotation which actually belongs to LocationDTO
+ *       + Location entity and LocationDTO can be made difference by where it located. Location entity presents
+ *  Location table in database and should be in consistency. Whereas LocationDTO contains a whole or a part of properties of Location entity,
+ * then DTO can be brought to display / interact with upper layer.
+ *       + All annotations stem from jakarta.validation libraries should be
+ * */
+
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
@@ -13,12 +23,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
 @Entity
 @Table(name = "locations")
 @NoArgsConstructor
 @AllArgsConstructor
 @Data  // generate getter & setter , toString, equals, hashCode
 @Builder
+
 
 public class Location {
 
@@ -55,3 +67,4 @@ public class Location {
     private boolean trashed;
 
 }
+
