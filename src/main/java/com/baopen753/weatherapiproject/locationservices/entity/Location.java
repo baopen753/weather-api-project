@@ -9,19 +9,17 @@ package com.baopen753.weatherapiproject.locationservices.entity;
  *       + All annotations stem from jakarta.validation libraries should be
  * */
 
-
+import com.baopen753.weatherapiproject.realtimeservices.entity.RealtimeWeather;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 
 
 @Entity
@@ -35,9 +33,12 @@ import lombok.NoArgsConstructor;
 public class Location {
 
     @Id
-    @Column(length = 12, nullable = false, unique = true)           //  using @Column(name = "code") for database first
-    @JsonProperty("code")                                           //  Validation should be implemented within the service layer instead of persistence layer
-    @NotBlank(message = "code cannot be blank")                     // JsonProperty: make sure there must have corresponding JSON field in RequestBody
+    @Column(name = "location_code", length = 12, nullable = false, unique = true)           //  using @Column(name = "code") for database first
+    @JsonProperty("location_code")
+    //  Validation should be implemented within the service layer instead of persistence layer
+    @NotBlank(message = "location code cannot be blank")
+    // JsonProperty: make sure there must have corresponding JSON field in RequestBody
+    @Length(min = 4, max = 12, message = "location code should be 4-12 in length")
     private String code;
 
     @Column(length = 128, nullable = false)
@@ -65,6 +66,20 @@ public class Location {
 
     @JsonIgnore
     private boolean trashed;
+
+    public Location(String code, String cityName, String countryName, String regionName, String countryCode, boolean enabled, boolean trashed) {
+        this.code = code;
+        this.cityName = cityName;
+        this.countryName = countryName;
+        this.regionName = regionName;
+        this.countryCode = countryCode;
+        this.enabled = enabled;
+        this.trashed = trashed;
+    }
+
+    @OneToOne(mappedBy = "location")
+    @PrimaryKeyJoinColumn  // optional
+    private RealtimeWeather realtimeWeather;
 
 }
 

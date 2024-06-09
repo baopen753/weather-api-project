@@ -54,6 +54,12 @@
 			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
 
+		<dependency>  <!--looking location based IP for update local weather-->
+			<groupId>com.ip2location</groupId>
+			<artifactId>ip2location-java</artifactId>
+			<version>8.11.2</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

@@ -10,4 +10,5 @@ public class WeatherApiProjectApplication {
 		SpringApplication.run(WeatherApiProjectApplication.class, args);
 	}
 
+
 }

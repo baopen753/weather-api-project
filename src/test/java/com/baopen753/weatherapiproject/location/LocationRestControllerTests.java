@@ -1,22 +1,23 @@
 package com.baopen753.weatherapiproject.location;
 
 import com.baopen753.weatherapiproject.locationservices.entity.Location;
-import com.baopen753.weatherapiproject.locationservices.exception.LocationExistedException;
 import com.baopen753.weatherapiproject.locationservices.exception.LocationNotFoundException;
 import com.baopen753.weatherapiproject.locationservices.restcontroller.LocationRestController;
 import com.baopen753.weatherapiproject.locationservices.service.LocationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @WebMvcTest(LocationRestController.class)
@@ -196,6 +197,28 @@ public class LocationRestControllerTests {
 
         mockMvc.perform(delete(ENDPOINT+"/"+code))
                 .andExpect(status().isNoContent())
+                .andDo(print());
+    }
+
+
+
+    // test validate request body
+    @Test
+    public void testValidateRequestBodyLocation() throws Exception   // interpret the request sent from client, validate the request before sending to Service layer
+    {
+        // create Location object with incompatibe
+        Location testedLocation = new Location();
+        testedLocation.setCode("VN_LA");
+        testedLocation.setRegionName("South");
+        testedLocation.setCountryName("Socalist Republic of Vietnam");
+        testedLocation.setCityName("Longan");
+        testedLocation.setCountryCode("VN");
+        testedLocation.setEnabled(true);
+
+        String requestBody =  objectMapper.writeValueAsString(testedLocation);
+
+        mockMvc.perform(post(ENDPOINT).content(requestBody).contentType(REQUEST_CONTENT_TYPE))
+                .andExpect(status().isCreated())
                 .andDo(print());
     }
 

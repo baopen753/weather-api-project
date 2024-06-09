@@ -5,7 +5,7 @@ import com.baopen753.weatherapiproject.locationservices.exception.LocationExiste
 import com.baopen753.weatherapiproject.locationservices.exception.LocationNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 
-import lombok.extern.java.Log;
+import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,12 +101,35 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
 
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ErrorDTO handlerConstraintViolationException(HttpServletRequest request, Exception exception) {
+        // Logger the message to console
+        LOGGER.error("This is log message: " + exception.getMessage());
+
+        // create Error object
+        ErrorDTO errorDTO = new ErrorDTO();
+
+        // customize Error object
+        errorDTO.setTimeStamp(new Date());
+        errorDTO.setStatus(HttpStatus.BAD_REQUEST.value());
+        errorDTO.setPath(request.getServletPath());
+        errorDTO.addError(exception.getMessage());
+
+        return errorDTO;
+
+    }
+
+
+
+
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         LOGGER.error(ex.getMessage(), ex);
 
         ErrorDTO error = new ErrorDTO();
-
         error.setTimeStamp(new Date());
         error.setStatus(HttpStatus.BAD_REQUEST.value());
         error.setPath(((ServletWebRequest) request).getRequest().getServletPath());
@@ -119,6 +142,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         return new ResponseEntity<>(error, headers, status);
     }
+
+
+
+
+
+
+
+
 
 
 }
