@@ -29,7 +29,6 @@ public class LocationRestController {
 
     private LocationService service;
 
-    @Autowired
     public LocationRestController(LocationService locationService) {
         this.service = locationService;
     }

@@ -44,11 +44,10 @@ public class LocationService {
     }
 
 
-   @Transactional
+    @Transactional
     public Location create(Location location) throws LocationExistedException {
         Location locationInDb = locationRepository.findLocationsByCode(location.getCode());
-        if(locationInDb!=null)
-            throw new LocationExistedException("Duplicated location code. Try again !");
+        if (locationInDb != null) throw new LocationExistedException("Duplicated location code. Try again !");
         return locationRepository.save(location);
     }
 
@@ -64,7 +63,7 @@ public class LocationService {
         locationInDb.setCountryName(locationInRequest.getCountryName());
         locationInDb.setRegionName(locationInRequest.getRegionName());
         locationInDb.setCountryCode(locationInRequest.getCountryCode());
-        locationInDb.setCountryName(locationInRequest.getCountryName());
+        locationInDb.setCityName(locationInRequest.getCityName());
         locationInDb.setEnabled(locationInRequest.isEnabled());
 
         return locationRepository.save(locationInDb);
@@ -74,8 +73,7 @@ public class LocationService {
     @Transactional
     public void delete(String code) throws LocationNotFoundException {
         Location locationInDb = locationRepository.findLocationsByCode(code);
-        if (locationInDb == null)
-            throw new LocationNotFoundException(("Not found location with id: " + code));
+        if (locationInDb == null) throw new LocationNotFoundException(("Not found location with id: " + code));
         locationRepository.deleteByCode(code);
     }
 

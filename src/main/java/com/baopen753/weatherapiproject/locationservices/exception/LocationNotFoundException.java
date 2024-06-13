@@ -5,7 +5,8 @@ public class LocationNotFoundException extends RuntimeException {
         super(message);
     }
 
-    public LocationNotFoundException(String message, Throwable cause) {
-        super(message, cause);
+
+    public LocationNotFoundException(String countryCode, String cityName) {
+        super("Location not found for " + countryCode + ", " + cityName);
     }
 }

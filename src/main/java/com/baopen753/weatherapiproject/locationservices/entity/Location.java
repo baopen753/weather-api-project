@@ -25,7 +25,7 @@ import org.hibernate.validator.constraints.Length;
 @Entity
 @Table(name = "locations")
 @NoArgsConstructor
-@AllArgsConstructor
+//@AllArgsConstructor
 @Data  // generate getter & setter , toString, equals, hashCode
 @Builder
 
@@ -33,8 +33,9 @@ import org.hibernate.validator.constraints.Length;
 public class Location {
 
     @Id
-    @Column(name = "location_code", length = 12, nullable = false, unique = true)           //  using @Column(name = "code") for database first
-    @JsonProperty("location_code")
+    @Column(name = "code", length = 12, nullable = false, unique = true)
+    //  using @Column(name = "code") for database first
+    @JsonProperty("code")
     //  Validation should be implemented within the service layer instead of persistence layer
     @NotBlank(message = "location code cannot be blank")
     // JsonProperty: make sure there must have corresponding JSON field in RequestBody
@@ -67,6 +68,11 @@ public class Location {
     @JsonIgnore
     private boolean trashed;
 
+//    @OneToOne(mappedBy = "location", cascade = CascadeType.ALL)     // unidirectional
+//    @PrimaryKeyJoinColumn
+//    private RealtimeWeather realtimeWeather;
+
+
     public Location(String code, String cityName, String countryName, String regionName, String countryCode, boolean enabled, boolean trashed) {
         this.code = code;
         this.cityName = cityName;
@@ -77,9 +83,13 @@ public class Location {
         this.trashed = trashed;
     }
 
-    @OneToOne(mappedBy = "location")
-    @PrimaryKeyJoinColumn  // optional
-    private RealtimeWeather realtimeWeather;
+    public Location(String cityName, String countryLong, String regionName, String countryShort) {
+        this.cityName = cityName;
+        this.countryName = countryLong;
+        this.regionName = regionName;
+        this.countryCode = countryShort;
+    }
+
 
 }
 

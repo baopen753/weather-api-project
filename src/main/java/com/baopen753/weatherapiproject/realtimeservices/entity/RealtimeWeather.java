@@ -2,16 +2,14 @@ package com.baopen753.weatherapiproject.realtimeservices.entity;
 
 import com.baopen753.weatherapiproject.locationservices.entity.Location;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Date;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 @Builder
 
 
@@ -32,16 +30,16 @@ public class RealtimeWeather {
     @Column(name = "precipitation")
     private Integer precipitation;
 
-    @Column(name = "windSpeed")
+    @Column(name = "wind_speed")
     private Integer windSpeed;
 
     @Column(name = "status", length = 50)
     private String status;
 
-    @Column(name = "lastUpdated")
+    @Column(name = "last_updated")
     private Date lastUpdated;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne()
     @JoinColumn(name = "location_code")
     @MapsId
     private Location location;
