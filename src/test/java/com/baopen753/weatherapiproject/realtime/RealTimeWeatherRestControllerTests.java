@@ -1,5 +1,6 @@
 package com.baopen753.weatherapiproject.realtime;
 
+import com.baopen753.weatherapiproject.GeolocationException;
 import com.baopen753.weatherapiproject.GeolocationService;
 import com.baopen753.weatherapiproject.locationservices.entity.Location;
 import com.baopen753.weatherapiproject.locationservices.exception.LocationNotFoundException;
@@ -54,8 +55,14 @@ public class RealTimeWeatherRestControllerTests {
 
     @Test
     @Disabled
-    public void testGetShouldReturn400BadRequest() throws Exception {
+    public void testGetRealtimeShouldReturn400BadRequest() throws Exception {
 
+        GeolocationException exception = new GeolocationException("Bad request due to invalid Ip address");
+        Mockito.when(geolocationService.getLocation(Mockito.anyString())).thenThrow(exception);
+
+        mockMvc.perform(get(ENDPOINT))
+                .andExpect(status().isBadRequest())
+                .andDo(print());
     }
 
 
@@ -65,7 +72,7 @@ public class RealTimeWeatherRestControllerTests {
      *   In this case: we need to crete Location object with invalid properties (country_code, city_name) to throw LocationNotFoundException(countryCode,cityName);
      */
     @Test
-    public void testGetShouldReturn404NotFound() throws Exception {
+    public void testGetRealtimeShouldReturn404NotFound() throws Exception {
 
         // Location with invalid info
         Location location = new Location();
@@ -88,44 +95,26 @@ public class RealTimeWeatherRestControllerTests {
 
 
     @Test
-    @Disabled
-    public void testGetShouldReturn200Ok() throws Exception {
-        // Location with invalid info
-        Location location = new Location();
-        location.setCountryCode("USA");
-        location.setCityName("Los Angeles");
-
-        RealtimeWeather realtimeWeather = new RealtimeWeather();
-        realtimeWeather.setHumidity(60);
-        realtimeWeather.setPrecipitation(60);
-        realtimeWeather.setTemperature(60);
-        realtimeWeather.setWindSpeed(60);
-        realtimeWeather.setLastUpdated(new Date());
-        realtimeWeather.setStatus("2nd updated from USA_LA");
-        realtimeWeather.setLocationCode("USA_LA");
-        realtimeWeather.setLocation(location);
-
-        Mockito.when(geolocationService.getLocation(Mockito.anyString())).thenReturn(location);
-        Mockito.when(realtimeWeatherService.getRealtimeWeatherByLocation(location)).thenReturn(realtimeWeather);
-
-        mockMvc.perform(get(ENDPOINT)).andExpect(status().isOk()).andDo(print());
-
-    }
-
-
-    @Test
     public void testGetRealtimeShouldReturn200OK() throws Exception {
-        String validIp = "171.252.153.255";   // private ip
 
         Location location = new Location();
         location.setCountryCode("VN");
         location.setCityName("Ho Chi Minh City");
 
-        Mockito.when(geolocationService.getLocation(validIp)).thenReturn(location);
+        RealtimeWeather realtimeWeather = new RealtimeWeather();
+        realtimeWeather.setTemperature(60);
+        realtimeWeather.setHumidity(60);
+        realtimeWeather.setLastUpdated(new Date());
+        realtimeWeather.setPrecipitation(60);
+        realtimeWeather.setStatus("2nd updated from VN_HCM");
+        realtimeWeather.setWindSpeed(60);
+        realtimeWeather.setLocation(location);
 
-        mockMvc.perform(get(ENDPOINT))
-                .andExpect(status().isOk())
-                .andDo(print());
+
+        Mockito.when(geolocationService.getLocation(Mockito.anyString())).thenReturn(location);
+        Mockito.when(realtimeWeatherService.getRealtimeWeatherByLocation(location)).thenReturn(realtimeWeather);
+
+        mockMvc.perform(get(ENDPOINT)).andExpect(status().isOk()).andDo(print());
 
 
     }

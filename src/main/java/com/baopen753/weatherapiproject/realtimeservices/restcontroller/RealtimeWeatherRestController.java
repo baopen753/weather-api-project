@@ -4,9 +4,11 @@ package com.baopen753.weatherapiproject.realtimeservices.restcontroller;
 import com.baopen753.weatherapiproject.CommonUtility;
 import com.baopen753.weatherapiproject.GeolocationService;
 import com.baopen753.weatherapiproject.locationservices.entity.Location;
+import com.baopen753.weatherapiproject.realtimeservices.dto.RealtimeWeatherDto;
 import com.baopen753.weatherapiproject.realtimeservices.entity.RealtimeWeather;
 import com.baopen753.weatherapiproject.realtimeservices.service.RealtimeWeatherService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,12 +21,13 @@ public class RealtimeWeatherRestController {
 
     private RealtimeWeatherService realtimeWeatherService;
     private GeolocationService geolocationService;
+    private ModelMapper modelMapper;
 
-    public RealtimeWeatherRestController(RealtimeWeatherService realtimeWeatherService, GeolocationService geolocationService) {
+    public RealtimeWeatherRestController(RealtimeWeatherService realtimeWeatherService, GeolocationService geolocationService, ModelMapper modelMapper) {
         this.realtimeWeatherService = realtimeWeatherService;
         this.geolocationService = geolocationService;
+        this.modelMapper = modelMapper;
     }
-
 
     /*
      *   This method is used to get realtime weather based on Ip address taken from HTTP request
@@ -42,7 +45,10 @@ public class RealtimeWeatherRestController {
         String ipAddress = CommonUtility.getIPAddress(request);
         Location locationMappedFromIp = geolocationService.getLocation(ipAddress);
         RealtimeWeather realtimeWeather = realtimeWeatherService.getRealtimeWeatherByLocation(locationMappedFromIp);
-        return ResponseEntity.ok(realtimeWeather);
+
+        RealtimeWeatherDto dto = modelMapper.map(realtimeWeather, RealtimeWeatherDto.class);
+        return ResponseEntity.ok(dto);
+
     }
 
 
