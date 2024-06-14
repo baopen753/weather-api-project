@@ -108,23 +108,27 @@ public class RealTimeWeatherRestControllerTests {
         Mockito.when(geolocationService.getLocation(Mockito.anyString())).thenReturn(location);
         Mockito.when(realtimeWeatherService.getRealtimeWeatherByLocation(location)).thenReturn(realtimeWeather);
 
-        mockMvc.perform(get(ENDPOINT))
-                .andExpect(status().isOk())
-                .andDo(print());
+        mockMvc.perform(get(ENDPOINT)).andExpect(status().isOk()).andDo(print());
 
     }
 
 
     @Test
-    public void testVValidIp() throws IOException {
+    public void testGetRealtimeShouldReturn200OK() throws Exception {
         String validIp = "171.252.153.255";   // private ip
 
-        Location resultLocation = geolocationService.getLocation(validIp);
+        Location location = new Location();
+        location.setCountryCode("VN");
+        location.setCityName("Ho Chi Minh City");
 
-        Assertions.assertThat(resultLocation.getCityName()).isEqualTo("Ho Chi Minh City");
+        Mockito.when(geolocationService.getLocation(validIp)).thenReturn(location);
+
+        mockMvc.perform(get(ENDPOINT))
+                .andExpect(status().isOk())
+                .andDo(print());
+
 
     }
-
 
 
 }

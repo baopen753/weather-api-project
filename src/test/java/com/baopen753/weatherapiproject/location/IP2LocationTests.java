@@ -33,7 +33,7 @@ public class IP2LocationTests {
     }
 
     @Test
-    public void testVValidIp() throws IOException {
+    public void testValidIp() throws IOException {
         String validIp = "171.252.153.255";   // private ip
 
         IP2Location ip2Locator = new IP2Location();

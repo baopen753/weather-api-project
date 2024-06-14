@@ -29,7 +29,6 @@ public class RealtimeWeatherRepositoryTests {
         String cityName = "Hanoi";
 
         RealtimeWeather realtimeWeather = realtimeWeatherRepository.findLocationByCountryCodeAndCity(countryCode, cityName);
-        // Location location = locationRepository.findLocationsByCode(countryCode);
 
         Assertions.assertThat(realtimeWeather.getLocation().getRegionName()).isEqualToIgnoringCase("Myduc");
         Assertions.assertThat(realtimeWeather).isNotNull();

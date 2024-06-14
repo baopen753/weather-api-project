@@ -16,7 +16,7 @@ import java.util.Date;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Rollback(value = false)
+@Rollback
 public class LocationRepositoryTests {
 
     @Autowired
@@ -73,7 +73,7 @@ public class LocationRepositoryTests {
 
     @Test
     public void testAddRealtimeWeatherData() {
-        String locaionCode = "VN_HN";
+        String locaionCode = "VN_HCM";
         Location locationAddedData = locationRepository.findLocationsByCode(locaionCode);
 
         RealtimeWeather testedRealtimeWeather = new RealtimeWeather();
@@ -93,7 +93,7 @@ public class LocationRepositoryTests {
 
     @Test
     public void testUpdateRealtimeWeatherData() {
-        String locaionCode = "VN_HN";
+        String locaionCode = "VN_HCM";
         RealtimeWeather realtimeWeatherInDb = realtimeWeatherRepository.findByLocationCode(locaionCode);
 
         realtimeWeatherInDb.setTemperature(50);

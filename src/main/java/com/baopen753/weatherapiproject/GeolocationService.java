@@ -11,24 +11,25 @@ import java.io.IOException;
 
 
 /*
-*  This class provides database contains locations mapped compatible public IP address
-*
-*  Aims: Get location based on input Ip address
-*/
+ *  This class provides database contains locations mapped compatible public IP address
+ *
+ *  Aims: Get location based on input Ip address
+ */
 
 @Service
 public class GeolocationService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeolocationService.class);
-    private final String DbPath = "ip2location/ip2location-lite-db3.bin/IP2LOCATION-LITE-DB3.BIN";
-    private static IP2Location ip2Locator = new IP2Location();
+    private static final IP2Location ip2Locator = new IP2Location();
+    private final String DB_PATH = "ip2location/ip2location-lite-db3.bin/IP2LOCATION-LITE-DB3.BIN";
+
 
     /*
      *  This constructor function plays a role to initialize Ip2Location database
      */
     public GeolocationService() {
         try {
-            this.ip2Locator.Open(DbPath);
+            ip2Locator.Open(DB_PATH);
         } catch (IOException ex) {
             LOGGER.error(ex.getMessage(), ex);
         }
@@ -49,7 +50,7 @@ public class GeolocationService {
      */
     public Location getLocation(String ipAddress) throws GeolocationException {
         try {
-            IPResult result = this.ip2Locator.IPQuery(ipAddress);
+            IPResult result = ip2Locator.IPQuery(ipAddress);
             if (!result.getStatus().equals("OK"))
                 throw new GeolocationException("Geolocation failed with status: " + result.getStatus());
             LOGGER.info(result.toString());
