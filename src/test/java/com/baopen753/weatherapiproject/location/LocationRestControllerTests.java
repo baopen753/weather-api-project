@@ -1,6 +1,7 @@
 package com.baopen753.weatherapiproject.location;
 
 import com.baopen753.weatherapiproject.locationservices.entity.Location;
+import com.baopen753.weatherapiproject.locationservices.exception.LocationExistedException;
 import com.baopen753.weatherapiproject.locationservices.exception.LocationNotFoundException;
 import com.baopen753.weatherapiproject.locationservices.restcontroller.LocationRestController;
 import com.baopen753.weatherapiproject.locationservices.service.LocationService;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import org.mockito.Mockito;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -37,6 +39,9 @@ public class LocationRestControllerTests {
     @MockBean
     LocationService locationService;
 
+    @MockBean
+    ModelMapper modelMapper;
+
 
     @Test
     public void testGetShouldReturn200OK() throws Exception {
@@ -64,9 +69,10 @@ public class LocationRestControllerTests {
         // create non-exsiting Location instance
         Location testLocation = new Location("VN_HN", "Hanoi", "Myduc", "Socialist Republic of Vietnam", "84", true, false);
 
+        LocationNotFoundException exception = new LocationNotFoundException("Not found location with code: " + testLocation.getCode());
 
         // use Mockito to create test environment mocking method of Service object
-        Mockito.when(locationService.findLocationByCode(testLocation.getCode())).thenThrow(LocationNotFoundException.class);
+        Mockito.when(locationService.findLocationByCode(testLocation.getCode())).thenThrow(exception);
 
         // use mockMvc to perform HTTP request
         mockMvc.perform(get(ENDPOINT + "/" + testLocation.getCode()).contentType(REQUEST_CONTENT_TYPE)).andExpect(status().isNotFound()).andDo(print());
@@ -103,13 +109,15 @@ public class LocationRestControllerTests {
     @Disabled
     public void testPostShouldReturn409Confict() throws Exception {
         // create existing location
-        Location testedLocation = new Location("VN_QB", "Hanoi", "Myduc", "Socialist Republic of Vietnam", "84", true, false);
+        Location testedLocation = new Location("VN_HN", "Hanoi", "Myduc", "Socialist Republic of Vietnam", "84", true, false);
 
         // serialize POJO to JSON
         String requestBody = objectMapper.writeValueAsString(testedLocation);
 
+        LocationExistedException exception = new LocationExistedException("Duplicated location code. Try again !");
+
         // use Mockito to test environment by mocking LocationService.checkLocationExist()
-        Mockito.when(locationService.create(testedLocation)).thenReturn(testedLocation);
+        Mockito.when(locationService.create(testedLocation)).thenThrow(exception);
 
         // use MocMvc to perform HTTP Request
         mockMvc.perform(post(ENDPOINT).content(requestBody).contentType(REQUEST_CONTENT_TYPE)).andExpect(status().isConflict()).andDo(print());
@@ -121,17 +129,20 @@ public class LocationRestControllerTests {
         // create non-existing location
         Location testedLocation = new Location();
         testedLocation.setCode("ABCDF");
-        testedLocation.setRegionName("South");
-        testedLocation.setCountryCode("VN");
-        testedLocation.setCountryName("Socalist Republic of Vietnam");
-        testedLocation.setCityName("Longan");
+        testedLocation.setRegionName("y");
+        testedLocation.setCountryCode("y");
+        testedLocation.setCountryName("y y of Vietnam");
+        testedLocation.setCityName("y");
         testedLocation.setEnabled(true);
 
         // serialize POJO to JSON
         String requestBody = objectMapper.writeValueAsString(testedLocation);
 
+        LocationNotFoundException exception = new LocationNotFoundException("No location found");
+
         // use Mockito to create testing environment by mocking LocationService object
-        Mockito.when(locationService.update(testedLocation)).thenThrow(new LocationNotFoundException("No location found"));
+        // Mockito.when(locationService.update(testedLocation)).thenThrow(new LocationNotFoundException("No location found"));
+        Mockito.doThrow(exception).when(locationService).update(testedLocation);
 
         // use MockMvc to perform HTTP request
         mockMvc.perform(put(ENDPOINT).contentType(REQUEST_CONTENT_TYPE).content(requestBody)).andExpect(status().isNotFound()).andDo(print());
@@ -160,11 +171,13 @@ public class LocationRestControllerTests {
 
 
     @Test
-    @Disabled
     public void testUpdateShouldReturn400BadRequest() throws Exception {
-        // create lacked properties location
+
         Location testedLocation = new Location();
-        testedLocation.setRegionName("South");
+                                                      // create lacked properties location
+                                                      // locationId shouldn't be lacked
+        testedLocation.setCode("ABCDF");
+      //  testedLocation.setRegionName("South");
         testedLocation.setCountryCode("VN");
         testedLocation.setCountryName("Socalist Republic of Vietnam");
         testedLocation.setCityName("Longan");
@@ -172,6 +185,8 @@ public class LocationRestControllerTests {
 
         // serialize POJO to JSON
         String requestBody = objectMapper.writeValueAsString(testedLocation);
+
+
         // perform http request
         mockMvc.perform(put(ENDPOINT).contentType(REQUEST_CONTENT_TYPE).content(requestBody)).andExpect(status().isBadRequest()).andDo(print());
     }
@@ -195,11 +210,8 @@ public class LocationRestControllerTests {
 
         Mockito.doNothing().when(locationService).delete(code);
 
-        mockMvc.perform(delete(ENDPOINT+"/"+code))
-                .andExpect(status().isNoContent())
-                .andDo(print());
+        mockMvc.perform(delete(ENDPOINT + "/" + code)).andExpect(status().isNoContent()).andDo(print());
     }
-
 
 
     // test validate request body
@@ -215,11 +227,9 @@ public class LocationRestControllerTests {
         testedLocation.setCountryCode("VN");
         testedLocation.setEnabled(true);
 
-        String requestBody =  objectMapper.writeValueAsString(testedLocation);
+        String requestBody = objectMapper.writeValueAsString(testedLocation);
 
-        mockMvc.perform(post(ENDPOINT).content(requestBody).contentType(REQUEST_CONTENT_TYPE))
-                .andExpect(status().isCreated())
-                .andDo(print());
+        mockMvc.perform(post(ENDPOINT).content(requestBody).contentType(REQUEST_CONTENT_TYPE)).andExpect(status().isCreated()).andDo(print());
     }
 
 

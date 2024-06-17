@@ -12,7 +12,7 @@ import java.util.Date;
 @Getter
 @Setter
 @Builder
-
+@Data
 
 @Entity
 @Table(name = "realtime_weather")

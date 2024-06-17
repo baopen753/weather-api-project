@@ -47,6 +47,14 @@ public class LocationRepositoryTests {
     }
 
     @Test
+    public void getLocationSuccess() {
+        String locationCode = "USA_LA";
+
+        Location location = locationRepository.findLocationsByCode(locationCode);
+        Assertions.assertThat(location).isNotNull();
+    }
+
+    @Test
     public void testUpdateSuccess() {
         Location location = new Location();
         location.setCode("VN_HCM");

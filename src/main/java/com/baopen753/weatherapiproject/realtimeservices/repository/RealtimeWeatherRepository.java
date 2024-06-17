@@ -12,6 +12,5 @@ public interface RealtimeWeatherRepository extends JpaRepository<RealtimeWeather
     @Query("SELECT l FROM RealtimeWeather l WHERE l.location.countryCode = ?1 AND l.location.cityName = ?2")
     public RealtimeWeather findLocationByCountryCodeAndCity(String countryCode, String city);
 
-
 }
 

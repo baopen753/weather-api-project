@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 
-@JsonPropertyOrder({"code", "city_name", "region_name", "country_code", "country_name", "enabled"})
+@JsonPropertyOrder({"code", "city_name", "region_name", "country_name", "country_code"})
 public class LocationDto {
 
     @JsonProperty("code")
@@ -27,8 +27,5 @@ public class LocationDto {
 
     @JsonProperty("country_name")
     private String countryName;
-
-    private boolean enabled;
-
 
 }

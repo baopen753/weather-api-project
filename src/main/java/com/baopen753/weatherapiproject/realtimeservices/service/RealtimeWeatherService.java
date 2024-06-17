@@ -8,6 +8,8 @@ import com.baopen753.weatherapiproject.realtimeservices.repository.RealtimeWeath
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+
 @Service
 public class RealtimeWeatherService {
 
@@ -26,6 +28,33 @@ public class RealtimeWeatherService {
         RealtimeWeather realtimeWeather = realtimeWeatherRepository.findLocationByCountryCodeAndCity(countryCode, cityName);
         if (realtimeWeather == null) throw new LocationNotFoundException(countryCode, cityName);
         return realtimeWeather;
+    }
+
+    public RealtimeWeather getRealtimeWeatherByCode(String code) throws LocationNotFoundException {
+        Location location = locationRepository.findLocationsByCode(code);
+        if (location == null) throw new LocationNotFoundException("Not found location with code: " + code);
+
+        String countryCode = location.getCountryCode();
+        String cityName = location.getCityName();
+        RealtimeWeather realtimeWeather = realtimeWeatherRepository.findLocationByCountryCodeAndCity(countryCode, cityName);
+        return realtimeWeather;
+    }
+
+    public RealtimeWeather updateRealtimeWeatherByCode(String code, RealtimeWeather newRealtimeWeather) throws LocationNotFoundException {
+
+        Location locationInDb = locationRepository.findLocationsByCode(code);
+        if (locationInDb == null) throw new LocationNotFoundException("Not found location with code: " + code);
+
+        newRealtimeWeather.setLocation(locationInDb);
+        newRealtimeWeather.setLastUpdated(new Date());
+
+        if (locationInDb.getRealtimeWeather() == null){
+            locationInDb.setRealtimeWeather(newRealtimeWeather);
+            locationRepository.save(locationInDb);
+            return  locationInDb.getRealtimeWeather();
+        }
+
+        return realtimeWeatherRepository.save(newRealtimeWeather);
     }
 
 

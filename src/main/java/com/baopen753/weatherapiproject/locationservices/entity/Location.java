@@ -9,6 +9,7 @@ package com.baopen753.weatherapiproject.locationservices.entity;
  *       + All annotations stem from jakarta.validation libraries should be
  * */
 
+import com.baopen753.weatherapiproject.realtimeservices.entity.RealtimeWeather;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
@@ -26,7 +27,7 @@ import org.hibernate.validator.constraints.Length;
 @NoArgsConstructor
 //@AllArgsConstructor
 @Data  // generate getter & setter , toString, equals, hashCode
-@Builder
+//@Builder
 
 
 public class Location {
@@ -67,10 +68,8 @@ public class Location {
     @JsonIgnore
     private boolean trashed;
 
-
-//    @OneToOne(mappedBy = "location", cascade = CascadeType.ALL)     // unidirectional
-//    @PrimaryKeyJoinColumn
-//    private RealtimeWeather realtimeWeather;
+    @OneToOne(mappedBy = "location", cascade = CascadeType.ALL)     // unidirectional
+    private RealtimeWeather realtimeWeather;
 
 
     public Location(String code, String cityName, String countryName, String regionName, String countryCode, boolean enabled, boolean trashed) {

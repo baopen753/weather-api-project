@@ -10,10 +10,11 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.annotation.Rollback;
 
+import java.util.Date;
+
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Rollback(value = true)
-
 public class RealtimeWeatherRepositoryTests {
 
     @Autowired
@@ -36,7 +37,7 @@ public class RealtimeWeatherRepositoryTests {
     }
 
     @Test
-    public void testFindLocationByCodeNotFound() {
+    public void testFindLocationByCountryCodeAndCityFound() {
 
         String countryCode = "CA";
         String cityName = "Hanoi";
@@ -47,5 +48,45 @@ public class RealtimeWeatherRepositoryTests {
         Assertions.assertThat(realtimeWeather).isNull();
 
     }
+
+    @Test
+    public void testFindLocationByCodeFound() {
+        String code = "VN_HN";
+
+        RealtimeWeather result = realtimeWeatherRepository.findByLocationCode(code);
+
+        System.out.println(result.toString());
+        Assertions.assertThat(result).isNotNull();
+
+    }
+
+    @Test
+    public void testFindLocationByCodeNotFound() {
+        String code = "Wrong_Code";
+        RealtimeWeather result = realtimeWeatherRepository.findByLocationCode(code);
+
+        Assertions.assertThat(result).isNull();
+    }
+
+    @Test
+    public void testUpdateRealtimeWeatherByCodeSuccess() {
+
+        // creating an existing RealtimeWeather
+        RealtimeWeather testExistingRealtimeWeather = new RealtimeWeather();
+        testExistingRealtimeWeather.setHumidity(61);
+        testExistingRealtimeWeather.setPrecipitation(62);
+        testExistingRealtimeWeather.setTemperature(63);
+        testExistingRealtimeWeather.setWindSpeed(64);
+        testExistingRealtimeWeather.setLastUpdated(new Date());
+        testExistingRealtimeWeather.setLocationCode("USA_LA");
+        testExistingRealtimeWeather.setStatus("Cloudy");
+
+        RealtimeWeather result = realtimeWeatherRepository.save(testExistingRealtimeWeather);
+        Assertions.assertThat(result.getHumidity()).isEqualTo(61);
+        Assertions.assertThat(result.getStatus()).isEqualTo("Cloudy");
+    }
+
+
+
 
 }

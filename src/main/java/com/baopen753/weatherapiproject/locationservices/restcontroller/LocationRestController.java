@@ -4,6 +4,7 @@ package com.baopen753.weatherapiproject.locationservices.restcontroller;
  *    1. This RestController class should be directly called Service method . No need to catch Exception due to the existing of GlobalHandleException
  */
 
+import com.baopen753.weatherapiproject.locationservices.dto.LocationDto;
 import com.baopen753.weatherapiproject.locationservices.entity.Location;
 import com.baopen753.weatherapiproject.locationservices.service.LocationService;
 
@@ -12,7 +13,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -28,39 +29,37 @@ import java.util.List;
 public class LocationRestController {
 
     private LocationService service;
+    private ModelMapper mapper;
 
-    public LocationRestController(LocationService locationService) {
-        this.service = locationService;
+
+    public LocationRestController(LocationService service, ModelMapper mapper) {
+        this.service = service;
+        this.mapper = mapper;
     }
 
-
     @GetMapping
-    public ResponseEntity<List<Location>> getLocations(@RequestParam("pageSize")
-                                                       @Min(value = 10, message = "Minimum of page size is 10")
-                                                       @Max(value = 50, message = "Maximun of page size is 50")
-                                                       Integer pageSize, @RequestParam("pageNum")
-                                                       @Positive(message = "Page number must be greater than 0")
-                                                       Integer pageNum) {
-        System.out.println(pageSize);
-        System.out.println(pageNum);
+    public ResponseEntity<?> getLocations(@RequestParam("pageSize") @Min(value = 10, message = "Minimum of page size is 10") @Max(value = 50, message = "Maximun of page size is 50") Integer pageSize, @RequestParam("pageNum") @Positive(message = "Page number must be greater than 0") Integer pageNum) {
 
         List<Location> locationList = service.findAllLocations();
-        if (locationList.isEmpty()) return ResponseEntity.noContent().build();
-        return ResponseEntity.ok(locationList);
+        List<LocationDto> dtoList = locationList.stream().map(location -> mapper.map(location, LocationDto.class)).toList();
+        if (dtoList.isEmpty()) return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(dtoList);
     }
 
     @GetMapping("/{code}")
     public ResponseEntity<?> findLocationByCode(@PathVariable("code") String code) {
         Location location = service.findLocationByCode(code);
-        return ResponseEntity.ok(location);
+        LocationDto dto = mapper.map(location, LocationDto.class);
+        return ResponseEntity.ok(dto);
     }
 
 
     @PostMapping
     public ResponseEntity<?> addLocation(@Valid @RequestBody Location location) {
         Location createdLocation = service.create(location);
+        LocationDto dto = mapper.map(createdLocation, LocationDto.class);
         URI uri = URI.create("/api/v1/locations/" + location.getCode());
-        return ResponseEntity.created(uri).body(createdLocation);
+        return ResponseEntity.created(uri).body(dto);
     }
 
 

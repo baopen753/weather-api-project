@@ -58,7 +58,7 @@ public class LocationService {
         String codeInRequest = locationInRequest.getCode();
         Location locationInDb = locationRepository.findLocationsByCode(codeInRequest);
         if (locationInDb == null)
-            throw new LocationNotFoundException("No location found with the given code: " + codeInRequest);
+            throw new LocationNotFoundException("No found location by code: " + codeInRequest);
 
         locationInDb.setCountryName(locationInRequest.getCountryName());
         locationInDb.setRegionName(locationInRequest.getRegionName());
@@ -73,7 +73,7 @@ public class LocationService {
     @Transactional
     public void delete(String code) throws LocationNotFoundException {
         Location locationInDb = locationRepository.findLocationsByCode(code);
-        if (locationInDb == null) throw new LocationNotFoundException(("Not found location with id: " + code));
+        if (locationInDb == null) throw new LocationNotFoundException(("Not found location by id: " + code));
         locationRepository.deleteByCode(code);
     }
 
