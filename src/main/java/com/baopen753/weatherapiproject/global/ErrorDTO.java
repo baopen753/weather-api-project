@@ -1,4 +1,4 @@
-package com.baopen753.weatherapiproject.locationservices.error.global;
+package com.baopen753.weatherapiproject.global;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

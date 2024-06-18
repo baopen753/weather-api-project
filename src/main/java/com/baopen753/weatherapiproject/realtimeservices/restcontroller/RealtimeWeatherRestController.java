@@ -2,20 +2,29 @@ package com.baopen753.weatherapiproject.realtimeservices.restcontroller;
 
 import com.baopen753.weatherapiproject.CommonUtility;
 import com.baopen753.weatherapiproject.GeolocationService;
+import com.baopen753.weatherapiproject.global.ErrorDTO;
 import com.baopen753.weatherapiproject.locationservices.entity.Location;
 import com.baopen753.weatherapiproject.realtimeservices.dto.RealtimeWeatherDto;
 import com.baopen753.weatherapiproject.realtimeservices.entity.RealtimeWeather;
+import com.baopen753.weatherapiproject.realtimeservices.exception.RealtimeNotUpdatedException;
 import com.baopen753.weatherapiproject.realtimeservices.service.RealtimeWeatherService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Date;
 
 @RestController
 @RequestMapping("/api/v1/realtime")
 public class RealtimeWeatherRestController {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(RealtimeWeatherService.class);
 
     private RealtimeWeatherService realtimeWeatherService;
     private GeolocationService geolocationService;
@@ -67,5 +76,21 @@ public class RealtimeWeatherRestController {
         return ResponseEntity.ok(entityToDto(updatedRealtime));
     }
 
+
+    @ExceptionHandler(RealtimeNotUpdatedException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public ErrorDTO handleWeatherNotUpdatedException(HttpServletRequest request, Exception exception) {
+
+        LOGGER.error("This is log message: " + exception.getMessage());
+
+        ErrorDTO errorDTO = new ErrorDTO();
+        errorDTO.setTimeStamp(new Date());
+        errorDTO.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        errorDTO.setPath(request.getServletPath());
+        errorDTO.addError(exception.getMessage());
+
+        return errorDTO;
+    }
 
 }

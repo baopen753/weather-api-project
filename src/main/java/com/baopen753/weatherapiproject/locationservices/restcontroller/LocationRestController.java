@@ -38,10 +38,11 @@ public class LocationRestController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getLocations(@RequestParam("pageSize") @Min(value = 10, message = "Minimum of page size is 10") @Max(value = 50, message = "Maximun of page size is 50") Integer pageSize, @RequestParam("pageNum") @Positive(message = "Page number must be greater than 0") Integer pageNum) {
+    public ResponseEntity<?> getLocations(@RequestParam("pageSize") @Min(value = 4, message = "Minimum of page size is 4") @Max(value = 50, message = "Maximun of page size is 50") Integer pageSize, @RequestParam("pageNum") @Positive(message = "Page number must be greater than 0") Integer pageNum) {
 
         List<Location> locationList = service.findAllLocations();
         List<LocationDto> dtoList = locationList.stream().map(location -> mapper.map(location, LocationDto.class)).toList();
+
         if (dtoList.isEmpty()) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(dtoList);
     }
@@ -66,7 +67,8 @@ public class LocationRestController {
     @PutMapping
     public ResponseEntity<?> updateLocation(@Valid @RequestBody Location location) {
         Location updatedLocation = service.update(location);
-        return ResponseEntity.ok(updatedLocation);
+        LocationDto dto = mapper.map(updatedLocation, LocationDto.class);
+        return ResponseEntity.ok(dto);
     }
 
 

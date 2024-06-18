@@ -1,4 +1,4 @@
-package com.baopen753.weatherapiproject.locationservices.error.global;
+package com.baopen753.weatherapiproject.global;
 
 
 import com.baopen753.weatherapiproject.locationservices.exception.LocationExistedException;
@@ -120,8 +120,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return errorDTO;
 
     }
-
-
 
 
 
