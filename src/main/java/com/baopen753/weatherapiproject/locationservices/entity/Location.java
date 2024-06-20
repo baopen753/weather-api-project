@@ -9,6 +9,7 @@ package com.baopen753.weatherapiproject.locationservices.entity;
  *       + All annotations stem from jakarta.validation libraries should be
  * */
 
+import com.baopen753.weatherapiproject.hourlyweatherservices.entity.HourlyWeather;
 import com.baopen753.weatherapiproject.realtimeservices.entity.RealtimeWeather;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -20,6 +21,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
+
+import java.util.List;
 
 
 @Entity
@@ -70,6 +73,10 @@ public class Location {
 
     @OneToOne(mappedBy = "location", cascade = CascadeType.ALL)     // unidirectional
     private RealtimeWeather realtimeWeather;
+
+    @OneToMany(mappedBy = "hourlyWeatherId.location", cascade = CascadeType.ALL, orphanRemoval = true)   // orphanRemoval = true: means when remove HourlyWeather object, the object is no longer existed in collection as well as in database
+                                                                                                         // orphanRemoval = false: means when object is removed, the object is no longer existed but still in database
+    private List<HourlyWeather> hourlyWeatherList;
 
 
     public Location(String code, String cityName, String countryName, String regionName, String countryCode, boolean enabled, boolean trashed) {

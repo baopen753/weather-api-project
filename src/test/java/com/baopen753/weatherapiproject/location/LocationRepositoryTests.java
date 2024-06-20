@@ -81,7 +81,7 @@ public class LocationRepositoryTests {
 
     @Test
     public void testAddRealtimeWeatherData() {
-        String locaionCode = "VN_HCM";
+        String locaionCode = "VN_HN";
         Location locationAddedData = locationRepository.findLocationsByCode(locaionCode);
 
         RealtimeWeather testedRealtimeWeather = new RealtimeWeather();
