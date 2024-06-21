@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 
 import java.io.Serializable;
 
@@ -23,6 +24,8 @@ import java.io.Serializable;
 
 @Embeddable
 public class HourlyWeatherId implements Serializable {
+
+    @Length(min = 0, max = 23, message = "Hour of day should be 0-23 in length")
     private Integer hourOfDay;
 
     @ManyToOne

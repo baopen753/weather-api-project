@@ -1,10 +1,8 @@
-package com.baopen753.weatherapiproject.hourlyweatherservices.entity;
+package com.baopen753.weatherapiproject.hourlyweatherservices.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.Column;
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,14 +12,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Builder
 
-@Entity
-@Table(name = "hourly_weather")
-public class HourlyWeather {
+@JsonPropertyOrder({"hour_of_day", "temperature", "precipitation", "status"})
+public class HourlyWeatherDto {
 
-    @EmbeddedId
-    private HourlyWeatherId hourlyWeatherId = new HourlyWeatherId();
+    @JsonProperty("hour_of_day")
+    private Integer hourOfDay;
 
     @JsonProperty("temperature")
     private Integer temperature;
@@ -29,7 +25,7 @@ public class HourlyWeather {
     @JsonProperty("precipitation")
     private Integer precipitation;
 
-    @Column(name = "status", length = 50)
+    @JsonProperty("status")
     private String status;
 
 }

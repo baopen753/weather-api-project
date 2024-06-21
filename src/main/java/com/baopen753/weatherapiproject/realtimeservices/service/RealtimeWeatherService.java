@@ -23,7 +23,6 @@ import java.util.Date;
 @Service
 public class RealtimeWeatherService {
 
-
     private RealtimeWeatherRepository realtimeWeatherRepository;
     private LocationRepository locationRepository;
 
@@ -32,6 +31,7 @@ public class RealtimeWeatherService {
         this.realtimeWeatherRepository = realtimeWeatherRepository;
         this.locationRepository = locationRepository;
     }
+
 
     public RealtimeWeather getRealtimeWeatherByLocation(Location location) throws LocationNotFoundException {
         String countryCode = location.getCountryCode();

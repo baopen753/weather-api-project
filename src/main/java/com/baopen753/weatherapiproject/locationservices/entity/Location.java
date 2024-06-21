@@ -22,6 +22,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -74,9 +75,10 @@ public class Location {
     @OneToOne(mappedBy = "location", cascade = CascadeType.ALL)     // unidirectional
     private RealtimeWeather realtimeWeather;
 
-    @OneToMany(mappedBy = "hourlyWeatherId.location", cascade = CascadeType.ALL, orphanRemoval = true)   // orphanRemoval = true: means when remove HourlyWeather object, the object is no longer existed in collection as well as in database
-                                                                                                         // orphanRemoval = false: means when object is removed, the object is no longer existed but still in database
-    private List<HourlyWeather> hourlyWeatherList;
+    @OneToMany(mappedBy = "hourlyWeatherId.location", cascade = CascadeType.ALL, orphanRemoval = true)
+    // orphanRemoval = true: means when remove HourlyWeather object, the object is no longer existed in collection as well as in database
+    // orphanRemoval = false: means when object is removed, the object is no longer existed but still in database
+    private List<HourlyWeather> hourlyWeatherList = new ArrayList<HourlyWeather>();
 
 
     public Location(String code, String cityName, String countryName, String regionName, String countryCode, boolean enabled, boolean trashed) {
@@ -89,11 +91,11 @@ public class Location {
         this.trashed = trashed;
     }
 
-    public Location(String cityName, String countryLong, String regionName, String countryShort) {
+    public Location(String cityName, String regionName, String countryLong, String countryCode) {
         this.cityName = cityName;
         this.countryName = countryLong;
         this.regionName = regionName;
-        this.countryCode = countryShort;
+        this.countryCode = countryCode;
     }
 
 
@@ -101,7 +103,6 @@ public class Location {
     public String toString() {
         return this.regionName + ", " + this.cityName + ", " + this.countryName;
     }
-
 
 
 }

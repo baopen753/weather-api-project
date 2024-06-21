@@ -46,7 +46,7 @@ public class RealtimeWeather {
     @JsonProperty("last_updated")
     private Date lastUpdated;
 
-    @OneToOne()
+    @OneToOne
     @JoinColumn(name = "location_code")
     @MapsId
     private Location location;
