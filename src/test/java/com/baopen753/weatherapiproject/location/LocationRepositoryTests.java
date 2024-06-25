@@ -115,4 +115,22 @@ public class LocationRepositoryTests {
 
         Assertions.assertThat(updatedRealtimeWeather.getHumidity()).isEqualTo(50);
     }
+
+    @Test
+    public void testGetLocationByCityNameAndCountryCodeSuccess() {
+        String cityName = "Ho Chi Minh City";
+        String countryCode = "VN";
+
+        Location location = locationRepository.findLocationByCityNameAndCountryCode(cityName, countryCode);
+        Assertions.assertThat(location).isNotNull();
+    }
+
+    @Test
+    public void testGetLocationByCityNameAndCountryCodeNotFound() {
+        String cityName = "Quy Nhon";
+        String countryCode = "VN";
+
+        Location location = locationRepository.findLocationByCityNameAndCountryCode(cityName, countryCode);
+        Assertions.assertThat(location).isNull();
+    }
 }

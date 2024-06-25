@@ -14,11 +14,14 @@ public interface LocationRepository extends JpaRepository<Location, String> {
     public Location findLocationsByCode(String code);
 
     @Query("SELECT l FROM Location l WHERE l.regionName ilike %?1% AND l.countryCode ilike %?2%")
-    public List<Location> findByCountryCodeAndRegionName(String regionName , String countryCode);
+    public List<Location> findByCountryCodeAndRegionName(String regionName, String countryCode);
 
     @Modifying
     @Query("UPDATE Location l SET l.trashed = true WHERE l.code = ?1")
     public void deleteByCode(String code);
+
+    @Query("SELECT l FROM Location l WHERE l.cityName = ?1 and l.countryCode = ?2")
+    public Location findLocationByCityNameAndCountryCode(String cityName, String countryCode);
 
 
 }

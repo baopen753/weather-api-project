@@ -26,7 +26,12 @@ public class HourlyWeatherService {
         String countryCode = location.getCountryCode();
         String cityName = location.getCityName();
 
-        List<HourlyWeather> hourlyWeatherList = hourlyWeatherRepository.findHourlyWeathersByCountryCodeAndCity(countryCode, cityName, currentHour);
+        Location locationInDb = locationRepository.findLocationByCityNameAndCountryCode(cityName, countryCode);
+
+        if (locationInDb == null) throw new LocationNotFoundException(countryCode, cityName);
+
+
+        List<HourlyWeather> hourlyWeatherList = hourlyWeatherRepository.findHourlyWeatherByLocationCode(locationInDb.getCode(), currentHour);
         return hourlyWeatherList;
     }
 }

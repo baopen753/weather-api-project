@@ -19,4 +19,8 @@ public class CommonUtility {
         LOGGER.info("Remote address: " + request.getRemoteAddr()); // client ip
         return ip;
     }
+
+    public static Integer getCurrentHour(HttpServletRequest request) {
+        return Integer.parseInt(request.getHeader("X-Current-Hour"));
+    }
 }

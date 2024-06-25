@@ -2,6 +2,7 @@ package com.baopen753.weatherapiproject.hourlyweatherservices.entity;
 
 import com.baopen753.weatherapiproject.locationservices.entity.Location;
 import jakarta.persistence.Embeddable;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;

@@ -75,7 +75,7 @@ public class Location {
     @OneToOne(mappedBy = "location", cascade = CascadeType.ALL)     // unidirectional
     private RealtimeWeather realtimeWeather;
 
-    @OneToMany(mappedBy = "hourlyWeatherId.location", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "hourlyWeatherId.location", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     // orphanRemoval = true: means when remove HourlyWeather object, the object is no longer existed in collection as well as in database
     // orphanRemoval = false: means when object is removed, the object is no longer existed but still in database
     private List<HourlyWeather> hourlyWeatherList = new ArrayList<HourlyWeather>();

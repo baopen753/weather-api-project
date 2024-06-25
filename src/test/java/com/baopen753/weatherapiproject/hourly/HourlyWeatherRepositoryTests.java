@@ -12,6 +12,8 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.annotation.Rollback;
 
+import java.util.List;
+
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Rollback(value = false)
@@ -25,7 +27,7 @@ public class HourlyWeatherRepositoryTests {
 
     @Test
     public void testAddHourlyWeatherSuccess() {
-        String locationCode = "VN_CM";   // an existing location code
+        String locationCode = "VN_HCM";   // an existing location code
         Location location = locationRepository.findLocationsByCode(locationCode);
 
         int hourOfDay = 12;
@@ -42,21 +44,28 @@ public class HourlyWeatherRepositoryTests {
     }
 
 
-//
-//    @Test
-//    public void testDeleteHourlyWeatherSuccess()
-//    {
-//        String locationCode = "VN_CM";
-//        Location location = locationRepository.findLocationsByCode(locationCode);
-//        int hourOfDay = 9;
-//
-//        HourlyWeatherId id = new HourlyWeatherId(hourOfDay, location);
-//
-//
-//
-//
-//    }
+    @Test
+    public void testGetHourlyWeatherFindByLocationCodeFound() {
+        String locationCode = "VN_HCM";
+        int hourOfDay = 12;
 
+        List<HourlyWeather> hourlyWeatherList = hourlyWeatherRepository.findHourlyWeatherByLocationCode(locationCode, hourOfDay);
 
+        Assertions.assertThat(hourlyWeatherList).isNotNull();
+        System.out.println(hourlyWeatherList.size());
+        hourlyWeatherList.stream().forEach(System.out::println);
+    }
+
+    @Test
+    public void testGetHourlyWeatherFindByLocationCodeNotFound() {
+        String locationCode = "VN_HIHI";
+        int hourOfDay = 12;
+
+        List<HourlyWeather> hourlyWeatherList = hourlyWeatherRepository.findHourlyWeatherByLocationCode(locationCode, hourOfDay);
+
+        Assertions.assertThat(hourlyWeatherList).isEmpty();
+        System.out.println(hourlyWeatherList.size());
+        hourlyWeatherList.stream().forEach(System.out::println);
+    }
 
 }
