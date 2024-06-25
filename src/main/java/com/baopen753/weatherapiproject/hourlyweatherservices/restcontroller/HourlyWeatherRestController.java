@@ -54,22 +54,22 @@ public class HourlyWeatherRestController {
             HourlyWeatherDto dto = entityToDto(hourlyWeather);
             result.addHourlyWeatherDto(dto);
         });
-
         return result;
     }
-
 
     @GetMapping
     public ResponseEntity<?> listHourlyWeatherForecastByIpAddress(HttpServletRequest request) {
 
         // get ip address & current hour from request
         String ipAddress = CommonUtility.getIPAddress(request);
+
         Integer currentHour = CommonUtility.getCurrentHour(request);
 
-        Location locationInMappedromIp = geolocationService.getLocation(ipAddress);
-        List<HourlyWeather> hourlyWeatherList = hourlyWeatherService.getHourlyWeatherByLocation(locationInMappedromIp, currentHour);
+        Location locationInMappedFromIp = geolocationService.getLocation(ipAddress);
+        List<HourlyWeather> hourlyWeatherList = hourlyWeatherService.getHourlyWeatherByLocation(locationInMappedFromIp, currentHour);
 
-        if (hourlyWeatherList.isEmpty()) return ResponseEntity.noContent().build();
+        if (hourlyWeatherList.isEmpty())
+            return ResponseEntity.noContent().build();
 
         HourlyWeatherListDto result = entityListToDto(hourlyWeatherList);
         return ResponseEntity.ok(result);

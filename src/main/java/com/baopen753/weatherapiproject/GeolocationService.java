@@ -52,7 +52,7 @@ public class GeolocationService {
         try {
             IPResult result = ip2Locator.IPQuery(ipAddress);
             if (!result.getStatus().equals("OK"))
-                throw new GeolocationException("Geolocation failed with status: " + result.getStatus());
+                throw new GeolocationException("Geolocation mapping failed with ip address: " + ipAddress);
             LOGGER.info(result.toString());
             return new Location(result.getCity(), result.getRegion(), result.getCountryLong(), result.getCountryShort());
         } catch (IOException ex) {

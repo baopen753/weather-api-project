@@ -31,7 +31,7 @@ import java.util.List;
 @NoArgsConstructor
 //@AllArgsConstructor
 @Data  // generate getter & setter , toString, equals, hashCode
-//@Builder
+
 
 
 public class Location {

@@ -1,6 +1,7 @@
 package com.baopen753.weatherapiproject.global;
 
 
+import com.baopen753.weatherapiproject.GeolocationException;
 import com.baopen753.weatherapiproject.locationservices.exception.LocationExistedException;
 import com.baopen753.weatherapiproject.locationservices.exception.LocationNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -118,8 +119,25 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         errorDTO.addError(exception.getMessage());
 
         return errorDTO;
-
     }
+
+    @ExceptionHandler(GeolocationException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public ErrorDTO handleGeolocationException(HttpServletRequest request, Exception exception) {
+        LOGGER.error("This is log message: " + exception.getMessage());
+
+        ErrorDTO errorDTO = new ErrorDTO();
+
+        errorDTO.setTimeStamp(new Date());
+        errorDTO.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        errorDTO.setPath(request.getServletPath());
+        errorDTO.addError(exception.getMessage());
+
+        return errorDTO;
+    }
+
+
 
 
 

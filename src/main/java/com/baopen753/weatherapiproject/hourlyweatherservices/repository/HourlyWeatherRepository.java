@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface HourlyWeatherRepository extends JpaRepository<HourlyWeather, HourlyWeatherId> {
 
-    @Query("SELECT l FROM HourlyWeather l WHERE l.hourlyWeatherId.location.code = ?1 AND l.hourlyWeatherId.hourOfDay >= ?2")
+    @Query("SELECT l FROM HourlyWeather l WHERE l.hourlyWeatherId.location.code = ?1 AND l.hourlyWeatherId.hourOfDay > ?2")
     public List<HourlyWeather> findHourlyWeatherByLocationCode(String locationCode, Integer currentHour);
 
 }

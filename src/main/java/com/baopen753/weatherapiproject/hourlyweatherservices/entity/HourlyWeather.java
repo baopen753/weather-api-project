@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 
+
 @Entity
 @Table(name = "hourly_weather")
 public class HourlyWeather {
