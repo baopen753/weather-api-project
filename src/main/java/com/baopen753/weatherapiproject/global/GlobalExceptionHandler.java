@@ -122,7 +122,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(GeolocationException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ErrorDTO handleGeolocationException(HttpServletRequest request, Exception exception) {
         LOGGER.error("This is log message: " + exception.getMessage());
@@ -130,7 +130,23 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorDTO errorDTO = new ErrorDTO();
 
         errorDTO.setTimeStamp(new Date());
-        errorDTO.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        errorDTO.setStatus(HttpStatus.BAD_REQUEST.value());
+        errorDTO.setPath(request.getServletPath());
+        errorDTO.addError(exception.getMessage());
+
+        return errorDTO;
+    }
+
+    @ExceptionHandler(HttpResponseException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ErrorDTO handleRequestLackingOfXCurrentHourHeader(HttpServletRequest request, Exception exception) {
+        LOGGER.error("This is log message: " + exception.getMessage());
+
+        ErrorDTO errorDTO = new ErrorDTO();
+
+        errorDTO.setTimeStamp(new Date());
+        errorDTO.setStatus(HttpStatus.BAD_REQUEST.value());
         errorDTO.setPath(request.getServletPath());
         errorDTO.addError(exception.getMessage());
 

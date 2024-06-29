@@ -12,11 +12,12 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.annotation.Rollback;
 
+import java.util.Collections;
 import java.util.List;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Rollback(value = false)
+@Rollback
 public class HourlyWeatherRepositoryTests {
 
     @Autowired
@@ -67,5 +68,56 @@ public class HourlyWeatherRepositoryTests {
         System.out.println(hourlyWeatherList.size());
         hourlyWeatherList.stream().forEach(System.out::println);
     }
+
+    @Test
+    public void testUpdateHourlyWeatherByCodeSuccess() {
+        String locationCode = "VN_HN";
+
+        Location location = locationRepository.findLocationsByCode(locationCode);
+
+        HourlyWeatherId id1 = new HourlyWeatherId(12, location);
+        HourlyWeatherId id2 = new HourlyWeatherId(13, location);
+        HourlyWeatherId id3 = new HourlyWeatherId(14, location);
+        HourlyWeatherId id4 = new HourlyWeatherId(15, location);
+
+        HourlyWeather hourlyWeather1 = HourlyWeather.builder()
+                .hourlyWeatherId(id1)
+                .precipitation(40)
+                .temperature(40)
+                .status("Cool")
+                .build();
+
+        HourlyWeather hourlyWeather2 = HourlyWeather.builder()
+                .hourlyWeatherId(id2)
+                .precipitation(30)
+                .temperature(30)
+                .status("Cooler")
+                .build();
+
+        HourlyWeather hourlyWeather3 = HourlyWeather.builder()
+                .hourlyWeatherId(id3)
+                .precipitation(20)
+                .temperature(20)
+                .status("Freeze")
+                .build();
+
+        HourlyWeather hourlyWeather4 = HourlyWeather.builder()
+                .hourlyWeatherId(id4)
+                .precipitation(10)
+                .temperature(10)
+                .status("Freezeze")
+                .build();
+
+        List<HourlyWeather> input = List.of(hourlyWeather1, hourlyWeather2, hourlyWeather3, hourlyWeather4);
+
+        List<HourlyWeather> result = hourlyWeatherRepository.saveAllAndFlush(input);
+
+        Assertions.assertThat(result).isNotNull();
+        Assertions.assertThat(result.size()).isEqualTo(4);
+
+        result.stream().forEach(System.out::println);
+
+    }
+
 
 }

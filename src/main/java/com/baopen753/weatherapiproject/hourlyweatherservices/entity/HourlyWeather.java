@@ -5,15 +5,14 @@ import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import java.util.Objects;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Setter
+@Getter
 @Builder
 
 
@@ -33,4 +32,23 @@ public class HourlyWeather {
     @Column(name = "status", length = 50)
     private String status;
 
+    public HourlyWeather getShallowCopy() {
+        HourlyWeather copy = new HourlyWeather();
+        copy.setHourlyWeatherId(this.getHourlyWeatherId());
+        return copy;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(hourlyWeatherId);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+        HourlyWeather other = (HourlyWeather) obj;
+        return Objects.equals(hourlyWeatherId, other.hourlyWeatherId);
+    }
 }

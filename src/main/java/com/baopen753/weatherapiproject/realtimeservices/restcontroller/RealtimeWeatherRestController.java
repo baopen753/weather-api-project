@@ -8,12 +8,13 @@ import com.baopen753.weatherapiproject.realtimeservices.dto.RealtimeWeatherDto;
 import com.baopen753.weatherapiproject.realtimeservices.entity.RealtimeWeather;
 import com.baopen753.weatherapiproject.realtimeservices.exception.RealtimeNotUpdatedException;
 import com.baopen753.weatherapiproject.realtimeservices.service.RealtimeWeatherService;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +36,7 @@ public class RealtimeWeatherRestController {
         this.geolocationService = geolocationService;
         this.modelMapper = modelMapper;
     }
+
 
     /*
      *   This method is used to get realtime weather based on Ip address taken from HTTP request

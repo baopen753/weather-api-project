@@ -16,22 +16,20 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 @Entity
 @Table(name = "locations")
 @NoArgsConstructor
 //@AllArgsConstructor
-@Data  // generate getter & setter , toString, equals, hashCode
-
+@Getter
+@Setter
 
 
 public class Location {
@@ -75,7 +73,7 @@ public class Location {
     @OneToOne(mappedBy = "location", cascade = CascadeType.ALL)     // unidirectional
     private RealtimeWeather realtimeWeather;
 
-    @OneToMany(mappedBy = "hourlyWeatherId.location", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "hourlyWeatherId.location", cascade = CascadeType.ALL, orphanRemoval = true)
     // orphanRemoval = true: means when remove HourlyWeather object, the object is no longer existed in collection as well as in database
     // orphanRemoval = false: means when object is removed, the object is no longer existed but still in database
     private List<HourlyWeather> hourlyWeatherList = new ArrayList<HourlyWeather>();
@@ -102,6 +100,21 @@ public class Location {
     @Override
     public String toString() {
         return this.regionName + ", " + this.cityName + ", " + this.countryName;
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(code);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+        Location other = (Location) obj;
+        return Objects.equals(code, other.code);
     }
 
 

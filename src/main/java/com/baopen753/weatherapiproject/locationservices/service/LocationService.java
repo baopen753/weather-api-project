@@ -26,7 +26,7 @@ public class LocationService {
 
     public Location findLocationByCode(String code) throws LocationNotFoundException {
         Location location = locationRepository.findLocationsByCode(code);
-        if (location == null) throw new LocationNotFoundException("Not found location by code: " + code);
+        if (location == null) throw new LocationNotFoundException(code);
         return location;
     }
 
@@ -39,7 +39,7 @@ public class LocationService {
     public List<Location> findLocationByCountryCode(String countryCode) throws LocationNotFoundException {
         List<Location> locationList = locationRepository.findAll().stream().filter(location -> location.getCountryCode().equalsIgnoreCase(countryCode)).toList();
         if (locationList.isEmpty() || locationList == null)
-            throw new LocationNotFoundException("Not found location by country code: " + countryCode);
+            throw new LocationNotFoundException(countryCode);
         return locationList;
     }
 
@@ -58,7 +58,7 @@ public class LocationService {
         String codeInRequest = locationInRequest.getCode();
         Location locationInDb = locationRepository.findLocationsByCode(codeInRequest);
         if (locationInDb == null)
-            throw new LocationNotFoundException("No found location by code: " + codeInRequest);
+            throw new LocationNotFoundException(codeInRequest);
 
         locationInDb.setCountryName(locationInRequest.getCountryName());
         locationInDb.setRegionName(locationInRequest.getRegionName());
@@ -73,7 +73,7 @@ public class LocationService {
     @Transactional
     public void delete(String code) throws LocationNotFoundException {
         Location locationInDb = locationRepository.findLocationsByCode(code);
-        if (locationInDb == null) throw new LocationNotFoundException(("Not found location by id: " + code));
+        if (locationInDb == null) throw new LocationNotFoundException((code));
         locationRepository.deleteByCode(code);
     }
 

@@ -5,18 +5,21 @@ import com.baopen753.weatherapiproject.GeolocationService;
 import com.baopen753.weatherapiproject.hourlyweatherservices.dto.HourlyWeatherDto;
 import com.baopen753.weatherapiproject.hourlyweatherservices.dto.HourlyWeatherListDto;
 import com.baopen753.weatherapiproject.hourlyweatherservices.entity.HourlyWeather;
+import com.baopen753.weatherapiproject.hourlyweatherservices.entity.HourlyWeatherId;
 import com.baopen753.weatherapiproject.hourlyweatherservices.service.HourlyWeatherService;
 import com.baopen753.weatherapiproject.locationservices.entity.Location;
+
+import com.baopen753.weatherapiproject.locationservices.service.LocationService;
 import jakarta.servlet.http.HttpServletRequest;
+
 import org.modelmapper.ModelMapper;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
-
 
 @RestController
 @RequestMapping("/api/v1/hourly")
@@ -24,21 +27,31 @@ public class HourlyWeatherRestController {
 
     private HourlyWeatherService hourlyWeatherService;
     private GeolocationService geolocationService;
+    private LocationService locationService;
     private ModelMapper modelMapper;
 
-
     @Autowired
-    public HourlyWeatherRestController(HourlyWeatherService hourlyWeatherService, GeolocationService geolocationService, ModelMapper modelMapper) {
+    public HourlyWeatherRestController(HourlyWeatherService hourlyWeatherService, GeolocationService geolocationService, LocationService locationService, ModelMapper modelMapper) {
         this.hourlyWeatherService = hourlyWeatherService;
         this.geolocationService = geolocationService;
+        this.locationService = locationService;
         this.modelMapper = modelMapper;
     }
-
 
     private HourlyWeatherDto entityToDto(HourlyWeather hourlyWeather) {
         HourlyWeatherDto dto = modelMapper.map(hourlyWeather, HourlyWeatherDto.class);
         dto.setHourOfDay(hourlyWeather.getHourlyWeatherId().getHourOfDay());
         return dto;
+    }
+
+
+    private HourlyWeather dtoToEntity(HourlyWeatherDto dto) {                    // this class can only map (temperature, precipitation, status, hour_of_day) from dto -> entity
+        HourlyWeather entity = modelMapper.map(dto, HourlyWeather.class);        // but, entity.location not yet
+
+        HourlyWeatherId hourlyWeatherId = HourlyWeatherId.builder().hourOfDay(dto.getHourOfDay()).build();
+
+        entity.setHourlyWeatherId(hourlyWeatherId);
+        return entity;
     }
 
 
@@ -57,21 +70,81 @@ public class HourlyWeatherRestController {
         return result;
     }
 
+
+    private List<HourlyWeather> dtoListToEntityList(List<HourlyWeatherDto> listDto) {
+        List<HourlyWeather> result = new ArrayList<>();
+
+        listDto.forEach(dto -> {
+            HourlyWeather entity = dtoToEntity(dto);          // still yet set location on HourlyWeatherId
+
+            result.add(entity);
+        });
+
+        return result;
+    }
+
+
     @GetMapping
     public ResponseEntity<?> listHourlyWeatherForecastByIpAddress(HttpServletRequest request) {
 
         // get ip address & current hour from request
         String ipAddress = CommonUtility.getIPAddress(request);
-
         Integer currentHour = CommonUtility.getCurrentHour(request);
 
         Location locationInMappedFromIp = geolocationService.getLocation(ipAddress);
         List<HourlyWeather> hourlyWeatherList = hourlyWeatherService.getHourlyWeatherByLocation(locationInMappedFromIp, currentHour);
 
-        if (hourlyWeatherList.isEmpty())
-            return ResponseEntity.noContent().build();
+        if (hourlyWeatherList.isEmpty()) return ResponseEntity.noContent().build();
 
         HourlyWeatherListDto result = entityListToDto(hourlyWeatherList);
         return ResponseEntity.ok(result);
     }
+
+    @GetMapping("/{code}")
+    public ResponseEntity<?> listHourlyWeatherForecastByCode(@PathVariable String code, HttpServletRequest request) {
+
+        Integer currentHour = CommonUtility.getCurrentHour(request);
+
+        List<HourlyWeather> hourlyWeatherList = hourlyWeatherService.getHourlyWeatherByCode(code, currentHour);
+        if (hourlyWeatherList.isEmpty()) return ResponseEntity.noContent().build();
+
+        HourlyWeatherListDto result = entityListToDto(hourlyWeatherList);
+
+        return ResponseEntity.ok(result);
+    }
+
+    @PutMapping("/{code}")
+    public ResponseEntity<?> updateHourlyWeatherForecastByLocation(@PathVariable String code, @RequestBody  List<HourlyWeatherDto> hourlyWeatherDtoList) {
+
+        // convert DTO list ---> Entity list
+        List<HourlyWeather> convertedHourlyWeatherListFromRequest = dtoListToEntityList(hourlyWeatherDtoList);
+
+
+        List<HourlyWeather> updatedHourlyWeatherList = hourlyWeatherService.updateHourlyWeatherByLocationCode(code, convertedHourlyWeatherListFromRequest);
+        // return hourlyWeather list after update
+
+
+        // convert Entity list ---> listDto object
+        HourlyWeatherListDto result = entityListToDto(updatedHourlyWeatherList);
+        return ResponseEntity.ok(result);
+    }
+
+
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

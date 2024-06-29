@@ -51,8 +51,7 @@ public class GeolocationService {
     public Location getLocation(String ipAddress) throws GeolocationException {
         try {
             IPResult result = ip2Locator.IPQuery(ipAddress);
-            if (!result.getStatus().equals("OK"))
-                throw new GeolocationException("Geolocation mapping failed with ip address: " + ipAddress);
+            if (!result.getStatus().equals("OK")) throw new GeolocationException(ipAddress);
             LOGGER.info(result.toString());
             return new Location(result.getCity(), result.getRegion(), result.getCountryLong(), result.getCountryShort());
         } catch (IOException ex) {

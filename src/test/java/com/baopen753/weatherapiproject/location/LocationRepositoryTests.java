@@ -1,5 +1,6 @@
 package com.baopen753.weatherapiproject.location;
 
+import com.baopen753.weatherapiproject.hourlyweatherservices.entity.HourlyWeather;
 import com.baopen753.weatherapiproject.locationservices.entity.Location;
 import com.baopen753.weatherapiproject.locationservices.repository.LocationRepository;
 
@@ -13,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.annotation.Rollback;
 
 import java.util.Date;
+import java.util.List;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -132,5 +134,15 @@ public class LocationRepositoryTests {
 
         Location location = locationRepository.findLocationByCityNameAndCountryCode(cityName, countryCode);
         Assertions.assertThat(location).isNull();
+    }
+
+    @Test
+    public void getAllAvailableHourlyWeatherByLocationCode() {
+        String locationCode = "VN_HN";
+        Location locationInDb = locationRepository.findLocationsByCode(locationCode);
+
+        List<HourlyWeather> hourlyWeatherListInDb = locationInDb.getHourlyWeatherList();
+
+        Assertions.assertThat(hourlyWeatherListInDb).isNotNull();
     }
 }

@@ -12,4 +12,7 @@ public interface HourlyWeatherRepository extends JpaRepository<HourlyWeather, Ho
     @Query("SELECT l FROM HourlyWeather l WHERE l.hourlyWeatherId.location.code = ?1 AND l.hourlyWeatherId.hourOfDay > ?2")
     public List<HourlyWeather> findHourlyWeatherByLocationCode(String locationCode, Integer currentHour);
 
+    @Query("SELECT l FROM HourlyWeather l WHERE l.hourlyWeatherId.location.code = ?1")
+    public List<HourlyWeather> getAllHourlyWeatherByCode(String locationCode);
+
 }

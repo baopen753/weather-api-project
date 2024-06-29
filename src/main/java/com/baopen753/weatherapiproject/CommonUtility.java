@@ -1,5 +1,6 @@
 package com.baopen753.weatherapiproject;
 
+import com.baopen753.weatherapiproject.global.HttpResponseException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,9 @@ public class CommonUtility {
     }
 
     public static Integer getCurrentHour(HttpServletRequest request) {
-        return Integer.parseInt(request.getHeader("X-Current-Hour"));
+        String currentHour = request.getHeader("X-CURRENT-HOUR");
+        if (currentHour == null || currentHour.isEmpty())
+            throw new HttpResponseException("Missing or empty 'X-Current-Hour' header");
+        return Integer.parseInt(request.getHeader("X-CURRENT-HOUR"));
     }
 }

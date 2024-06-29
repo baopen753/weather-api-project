@@ -14,6 +14,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -128,24 +129,27 @@ public class LocationRestControllerTests {
     public void testUpdateShouldReturn404NotFound() throws Exception {
         // create non-existing location
         Location testedLocation = new Location();
-        testedLocation.setCode("ABCDF");
+        testedLocation.setCode("ABCDF");        // not found with code 'ABCDF'
         testedLocation.setRegionName("y");
         testedLocation.setCountryCode("y");
         testedLocation.setCountryName("y y of Vietnam");
         testedLocation.setCityName("y");
         testedLocation.setEnabled(true);
 
+
         // serialize POJO to JSON
         String requestBody = objectMapper.writeValueAsString(testedLocation);
 
-        LocationNotFoundException exception = new LocationNotFoundException("No location found");
+        LocationNotFoundException exception = new LocationNotFoundException(testedLocation.getCode());
 
         // use Mockito to create testing environment by mocking LocationService object
-        // Mockito.when(locationService.update(testedLocation)).thenThrow(new LocationNotFoundException("No location found"));
+       // Mockito.when(locationService.update(testedLocation)).thenThrow(exception);
         Mockito.doThrow(exception).when(locationService).update(testedLocation);
 
         // use MockMvc to perform HTTP request
-        mockMvc.perform(put(ENDPOINT).contentType(REQUEST_CONTENT_TYPE).content(requestBody)).andExpect(status().isNotFound()).andDo(print());
+        mockMvc.perform(put(ENDPOINT).content(requestBody).contentType(REQUEST_CONTENT_TYPE))
+                .andExpect(status().isNotFound())
+                .andDo(print());
     }
 
     @Test
