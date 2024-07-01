@@ -23,6 +23,8 @@ public class RealtimeWeatherRepositoryTests {
     @Autowired
     private LocationRepository locationRepository;
 
+
+
     @Test
     public void testFindLocationByCodeAndCityNameSuccess() {
 
@@ -31,9 +33,8 @@ public class RealtimeWeatherRepositoryTests {
 
         RealtimeWeather realtimeWeather = realtimeWeatherRepository.findLocationByCountryCodeAndCity(countryCode, cityName);
 
-        Assertions.assertThat(realtimeWeather.getLocation().getRegionName()).isEqualToIgnoringCase("Myduc");
+        Assertions.assertThat(realtimeWeather.getLocation().getRegionName()).isEqualToIgnoringCase("North");
         Assertions.assertThat(realtimeWeather).isNotNull();
-
     }
 
     @Test

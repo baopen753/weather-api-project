@@ -37,14 +37,12 @@ public class RealtimeWeatherRestController {
         this.modelMapper = modelMapper;
     }
 
-
     /*
      *   This method is used to get realtime weather based on Ip address taken from HTTP request
      *
      *   @param:  request - inside HttpServletRequest contains Header X-Forwarded-For then invoke GeoLocation to mapping to compatible Location
      *   @return: ResponseEntity
      */
-
 
     private RealtimeWeatherDto entityToDto(RealtimeWeather realtimeWeather) {
         return modelMapper.map(realtimeWeather, RealtimeWeatherDto.class);
@@ -77,7 +75,6 @@ public class RealtimeWeatherRestController {
         RealtimeWeather updatedRealtime = realtimeWeatherService.updateRealtimeWeatherByCode(code, realtimeWeatherBodyRequest);
         return ResponseEntity.ok(entityToDto(updatedRealtime));
     }
-
 
     @ExceptionHandler(RealtimeNotUpdatedException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

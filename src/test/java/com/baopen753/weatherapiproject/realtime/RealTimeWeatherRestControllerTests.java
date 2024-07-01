@@ -226,7 +226,6 @@ public class RealTimeWeatherRestControllerTests {
                 .andDo(print());
     }
 
-
     @Test
     public void testUpdatedRealtimeByCodeShouldReturn400BadRequest() throws Exception {
 

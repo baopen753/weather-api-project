@@ -2,6 +2,7 @@ package com.baopen753.weatherapiproject.global;
 
 
 import com.baopen753.weatherapiproject.GeolocationException;
+import com.baopen753.weatherapiproject.hourlyweatherservices.exception.BadRequestException;
 import com.baopen753.weatherapiproject.locationservices.exception.LocationExistedException;
 import com.baopen753.weatherapiproject.locationservices.exception.LocationNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -62,7 +63,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return error;
     }
 
-
     @ExceptionHandler(LocationNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ResponseBody
@@ -100,7 +100,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         return errorDTO;
     }
-
 
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -154,9 +153,25 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
 
+    @ExceptionHandler(BadRequestException.class)     // handle when updating hourlyweather without body list request
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ErrorDTO handerRequestEmptyListBody(HttpServletRequest request, Exception exception) {
+        LOGGER.error("This is log message: " + exception.getMessage());
+
+        ErrorDTO errorDTO = new ErrorDTO();
+
+        errorDTO.setTimeStamp(new Date());
+        errorDTO.setStatus(HttpStatus.BAD_REQUEST.value());
+        errorDTO.setPath(request.getServletPath());
+        errorDTO.addError(exception.getMessage());
+
+        return errorDTO;
+    }
 
 
 
+    /// this method is used to catch invalid input fields within HourlyWeatherDto
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         LOGGER.error(ex.getMessage(), ex);

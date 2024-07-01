@@ -1,21 +1,26 @@
 package com.baopen753.weatherapiproject.hourlyweatherservices.restcontroller;
 
+
 import com.baopen753.weatherapiproject.CommonUtility;
 import com.baopen753.weatherapiproject.GeolocationService;
 import com.baopen753.weatherapiproject.hourlyweatherservices.dto.HourlyWeatherDto;
 import com.baopen753.weatherapiproject.hourlyweatherservices.dto.HourlyWeatherListDto;
 import com.baopen753.weatherapiproject.hourlyweatherservices.entity.HourlyWeather;
 import com.baopen753.weatherapiproject.hourlyweatherservices.entity.HourlyWeatherId;
+import com.baopen753.weatherapiproject.hourlyweatherservices.exception.BadRequestException;
+import com.baopen753.weatherapiproject.hourlyweatherservices.mapper.HourlyWeatherMapper;
 import com.baopen753.weatherapiproject.hourlyweatherservices.service.HourlyWeatherService;
 import com.baopen753.weatherapiproject.locationservices.entity.Location;
 
 import com.baopen753.weatherapiproject.locationservices.service.LocationService;
 import jakarta.servlet.http.HttpServletRequest;
 
+import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -23,6 +28,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/hourly")
+@Validated    // is used when validating a list in request body
+
 public class HourlyWeatherRestController {
 
     private HourlyWeatherService hourlyWeatherService;
@@ -44,7 +51,6 @@ public class HourlyWeatherRestController {
         return dto;
     }
 
-
     private HourlyWeather dtoToEntity(HourlyWeatherDto dto) {                    // this class can only map (temperature, precipitation, status, hour_of_day) from dto -> entity
         HourlyWeather entity = modelMapper.map(dto, HourlyWeather.class);        // but, entity.location not yet
 
@@ -53,7 +59,6 @@ public class HourlyWeatherRestController {
         entity.setHourlyWeatherId(hourlyWeatherId);
         return entity;
     }
-
 
     private HourlyWeatherListDto entityListToDto(List<HourlyWeather> hourlyWeatherList) {
 
@@ -70,18 +75,16 @@ public class HourlyWeatherRestController {
         return result;
     }
 
+    private List<HourlyWeather> dtoListToEntityList(List<HourlyWeatherDto> hourlyWeatherDtoList) {
 
-    private List<HourlyWeather> dtoListToEntityList(List<HourlyWeatherDto> listDto) {
-        List<HourlyWeather> result = new ArrayList<>();
-
-        listDto.forEach(dto -> {
-            HourlyWeather entity = dtoToEntity(dto);          // still yet set location on HourlyWeatherId
-
-            result.add(entity);
+        List<HourlyWeather> hourlyWeatherList = new ArrayList<>();
+        hourlyWeatherDtoList.forEach(dto -> {
+            HourlyWeather entity = HourlyWeatherMapper.INSTANCE.dtoToEntity(dto);
+            hourlyWeatherList.add(entity);
         });
-
-        return result;
+        return hourlyWeatherList;
     }
+
 
 
     @GetMapping
@@ -114,22 +117,21 @@ public class HourlyWeatherRestController {
     }
 
     @PutMapping("/{code}")
-    public ResponseEntity<?> updateHourlyWeatherForecastByLocation(@PathVariable String code, @RequestBody  List<HourlyWeatherDto> hourlyWeatherDtoList) {
+    public ResponseEntity<?> updateHourlyWeatherForecastByLocation(@RequestBody @Valid List<HourlyWeatherDto> hourlyWeatherDtoList, @PathVariable String code) {
+
+        if (hourlyWeatherDtoList.isEmpty())
+            throw new BadRequestException("Hourly weather list is empty");
 
         // convert DTO list ---> Entity list
         List<HourlyWeather> convertedHourlyWeatherListFromRequest = dtoListToEntityList(hourlyWeatherDtoList);
 
-
         List<HourlyWeather> updatedHourlyWeatherList = hourlyWeatherService.updateHourlyWeatherByLocationCode(code, convertedHourlyWeatherListFromRequest);
         // return hourlyWeather list after update
-
 
         // convert Entity list ---> listDto object
         HourlyWeatherListDto result = entityListToDto(updatedHourlyWeatherList);
         return ResponseEntity.ok(result);
     }
-
-
 
 
 }

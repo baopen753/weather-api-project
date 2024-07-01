@@ -6,6 +6,7 @@ import com.baopen753.weatherapiproject.locationservices.entity.Location;
 import com.baopen753.weatherapiproject.locationservices.exception.LocationNotFoundException;
 import com.baopen753.weatherapiproject.locationservices.repository.LocationRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,16 +42,6 @@ public class HourlyWeatherService {
         return hourlyWeatherList;
     }
 
-    public List<HourlyWeather> getAllHourlyWeatherByLocationCode(String code) {
-        Location locationInDb = locationRepository.findLocationsByCode(code);
-
-        if (locationInDb == null) throw new LocationNotFoundException(code);
-
-        List<HourlyWeather> hourlyWeatherList = hourlyWeatherRepository.getAllHourlyWeatherByCode(locationInDb.getCode());
-        return hourlyWeatherList;
-    }
-
-
     public List<HourlyWeather> updateHourlyWeatherByLocationCode(String code, List<HourlyWeather> hourlyWeatherListInRequest) {
 
         // 1. check there is an existed location with input code
@@ -58,21 +49,20 @@ public class HourlyWeatherService {
         if (locationInDb == null) throw new LocationNotFoundException(code);
 
 
-        // 2. Set location property in HourWeatherId of each object within ListInRequest
+        // 2. Set location property of HourWeatherId in each item within ListInRequest
         for(HourlyWeather item : hourlyWeatherListInRequest) {
             item.getHourlyWeatherId().setLocation(locationInDb);
         }
 
 
-        // 3. list all items in database haven't existed in ListInRequest   --> in order to delete them
+        // 3. list all items in ListInDb haven't existed in ListInRequest   --> in order to delete them
         List<HourlyWeather> hourlyWeatherListInDb = locationInDb.getHourlyWeatherList();
         List<HourlyWeather> hourlyWeatherListToBeDeleted = new ArrayList<>();
 
         for (HourlyWeather item : hourlyWeatherListInDb) {
-            if (!hourlyWeatherListInRequest.contains(item))
-                hourlyWeatherListToBeDeleted.add(item.getShallowCopy());
+            if (!hourlyWeatherListInRequest.contains(item))                  // need to manually config equals() & hashCode() due to this contains() method
+                hourlyWeatherListToBeDeleted.add(item.getShallowCopy());     // potentially vulnerable StackOverFlow due to equals(), hashCode() in Entity class
         }
-
 
         // 4. delete all item in db which existed in ToBeRemoved
         for (HourlyWeather item : hourlyWeatherListToBeDeleted) {

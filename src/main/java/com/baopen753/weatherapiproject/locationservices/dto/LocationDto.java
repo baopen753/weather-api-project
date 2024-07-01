@@ -28,4 +28,6 @@ public class LocationDto {
     @JsonProperty("country_name")
     private String countryName;
 
+
+
 }

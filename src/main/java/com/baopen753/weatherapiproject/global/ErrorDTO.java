@@ -18,9 +18,6 @@ public class ErrorDTO {
     private String path;
     public List<String> error = new ArrayList<>();
 
-    public ErrorDTO(String message) {
-        this.error.add(message);
-    }
     public void addError(String error) {
         this.error.add(error);
     }

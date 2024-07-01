@@ -34,7 +34,7 @@ import java.util.List;
 
 @WebMvcTest(HourlyWeatherRestController.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Rollback(value = false)
+@Rollback(value = true)
 public class HourlyWeatherRestControllerTests {
 
     @Autowired
@@ -156,21 +156,11 @@ public class HourlyWeatherRestControllerTests {
         locationGetFromCode.setCountryName("Socialist Republic of Vietnam");
 
         HourlyWeatherId hourlyWeatherId1 = HourlyWeatherId.builder().location(locationGetFromCode).hourOfDay(17).build();
-        HourlyWeather hourlyWeather1 = HourlyWeather.builder()
-                .temperature(70)
-                .precipitation(70).
-                status("Cosy")
-                .hourlyWeatherId(hourlyWeatherId1)
-                .build();
+        HourlyWeather hourlyWeather1 = HourlyWeather.builder().temperature(70).precipitation(70).status("Cosy").hourlyWeatherId(hourlyWeatherId1).build();
 
 
         HourlyWeatherId hourlyWeatherId2 = HourlyWeatherId.builder().location(locationGetFromCode).hourOfDay(18).build();
-        HourlyWeather hourlyWeather2 = HourlyWeather.builder()
-                .temperature(90)
-                .precipitation(90)
-                .status("Hot")
-                .hourlyWeatherId(hourlyWeatherId2)
-                .build();
+        HourlyWeather hourlyWeather2 = HourlyWeather.builder().temperature(90).precipitation(90).status("Hot").hourlyWeatherId(hourlyWeatherId2).build();
 
 
         Mockito.when(hourlyWeatherService.getHourlyWeatherByCode(locationGetFromCode.getCode(), currentHour)).thenReturn(List.of(hourlyWeather1, hourlyWeather2));
@@ -183,9 +173,7 @@ public class HourlyWeatherRestControllerTests {
         Integer currentHour = 20;
 
         Mockito.when(hourlyWeatherService.getHourlyWeatherByCode(locationCode, currentHour)).thenReturn(Collections.emptyList());
-        mockMvc.perform(get(END_POINT_PATH + "/" + locationCode).header(X_CURRENT_HOUR, String.valueOf(currentHour)))
-                .andExpect(status().isNoContent())
-                .andDo(print());
+        mockMvc.perform(get(END_POINT_PATH + "/" + locationCode).header(X_CURRENT_HOUR, String.valueOf(currentHour))).andExpect(status().isNoContent()).andDo(print());
     }
 
     @Test
@@ -194,9 +182,7 @@ public class HourlyWeatherRestControllerTests {
         Integer currentHour = 17;
 
         Mockito.when(hourlyWeatherService.getHourlyWeatherByCode(locationCode, currentHour)).thenReturn(new ArrayList<>());
-        mockMvc.perform(get(END_POINT_PATH + "/" + locationCode))
-                .andExpect(status().isBadRequest())
-                .andDo(print());
+        mockMvc.perform(get(END_POINT_PATH + "/" + locationCode)).andExpect(status().isBadRequest()).andDo(print());
     }
 
     @Test
@@ -211,15 +197,14 @@ public class HourlyWeatherRestControllerTests {
 
         Mockito.when(hourlyWeatherService.getHourlyWeatherByCode(locationCode, currentHour)).thenThrow(exception);
 
-        mockMvc.perform(get(END_POINT_PATH + "/" + locationCode).header(X_CURRENT_HOUR, currentHour))
-                .andExpect(status().isNotFound())
-                .andDo(print());
+        mockMvc.perform(get(END_POINT_PATH + "/" + locationCode).header(X_CURRENT_HOUR, currentHour)).andExpect(status().isNotFound()).andDo(print());
     }
-
 
     @Test
     public void testUpdateHourlyWeatherForecastByCodeShouldReturn200Ok() throws Exception {
+
         String locationCode = "VN_HN";
+        String requestURI = END_POINT_PATH + "/" + locationCode;
 
         Location locationGetFromCode = new Location();
         locationGetFromCode.setCode(locationCode);
@@ -228,72 +213,95 @@ public class HourlyWeatherRestControllerTests {
         locationGetFromCode.setCityName("Hanoi");
         locationGetFromCode.setCountryName("Socialist Republic of Vietnam");
 
-        HourlyWeatherId id1 = new HourlyWeatherId(12, locationGetFromCode);
-        HourlyWeatherId id2 = new HourlyWeatherId(13, locationGetFromCode);
-        HourlyWeatherId id3 = new HourlyWeatherId(14, locationGetFromCode);
-        HourlyWeatherId id4 = new HourlyWeatherId(15, locationGetFromCode);
+        HourlyWeatherDto dto1 = HourlyWeatherDto.builder().temperature(50).precipitation(50).hourOfDay(16).status("Cold").build();
+        HourlyWeatherDto dto2 = HourlyWeatherDto.builder().temperature(50).precipitation(60).hourOfDay(17).status("Freeze").build();
+        HourlyWeatherDto dto3 = HourlyWeatherDto.builder().temperature(50).precipitation(70).hourOfDay(18).status("Freezeze").build();
 
-        HourlyWeather hourlyWeather1 = HourlyWeather.builder()
-                .hourlyWeatherId(id1)
-                .precipitation(40)
-                .temperature(40)
-                .status("Cool")
-                .build();
+        HourlyWeather entity1 = new HourlyWeather();
+        entity1.getHourlyWeatherId().setLocation(locationGetFromCode);
+        entity1.getHourlyWeatherId().setHourOfDay(16);
+        entity1.setTemperature(50);
+        entity1.setPrecipitation(50);
+        entity1.setStatus("Cold");
 
-        HourlyWeather hourlyWeather2 = HourlyWeather.builder()
-                .hourlyWeatherId(id2)
-                .precipitation(30)
-                .temperature(30)
-                .status("Cooler")
-                .build();
+        HourlyWeather entity2 = new HourlyWeather();
+        entity2.getHourlyWeatherId().setLocation(locationGetFromCode);
+        entity2.getHourlyWeatherId().setHourOfDay(17);
+        entity2.setTemperature(60);
+        entity2.setPrecipitation(60);
+        entity2.setStatus("Freeze");
 
-        HourlyWeather hourlyWeather3 = HourlyWeather.builder()
-                .hourlyWeatherId(id3)
-                .precipitation(20)
-                .temperature(20)
-                .status("Freeze")
-                .build();
+        HourlyWeather entity3 = new HourlyWeather();
+        entity3.getHourlyWeatherId().setLocation(locationGetFromCode);
+        entity3.getHourlyWeatherId().setHourOfDay(18);
+        entity3.setTemperature(70);
+        entity3.setPrecipitation(70);
+        entity3.setStatus("Freezeze");
 
-        HourlyWeather hourlyWeather4 = HourlyWeather.builder()
-                .hourlyWeatherId(id4)
-                .precipitation(10)
-                .temperature(10)
-                .status("Freezeze")
-                .build();
 
-        List<HourlyWeather> hourlyWeatherList = new ArrayList<>();
-        hourlyWeatherList.add(hourlyWeather1);
-        hourlyWeatherList.add(hourlyWeather2);
-        hourlyWeatherList.add(hourlyWeather3);
-        hourlyWeatherList.add(hourlyWeather4);
+        List<HourlyWeatherDto> hourlyWeatherDtoList = List.of(dto1, dto2, dto3);
+        List<HourlyWeather> hourlyWeatherList = List.of(entity1, entity2, entity3);
 
-        locationGetFromCode.setHourlyWeatherList(hourlyWeatherList);
+        // List<HourlyWeather> hourlyWeatherList = dtoListToEntityList(hourlyWeatherDtoList);   // using this  method will be NullPointerException
 
-        // convert List<Entity>  --> List<Dto>
-        List<HourlyWeatherDto> hourlyWeatherDtoList = new ArrayList<>();
 
-        for (HourlyWeather entity : hourlyWeatherList) {
-            HourlyWeatherDto dto = entityToDto(entity);
-            hourlyWeatherDtoList.add(dto);
-        }
+        String requestBody = objectMapper.writeValueAsString(hourlyWeatherDtoList);
 
-        String requestBody = objectMapper.writeValueAsString(hourlyWeatherDtoList);    // List<HourlyWeatherDto>
 
-        Mockito.when(locationService.findLocationByCode(Mockito.anyString())).thenReturn(locationGetFromCode);
-        Mockito.when(hourlyWeatherService.updateHourlyWeatherByLocationCode(locationCode, hourlyWeatherList)).thenReturn(hourlyWeatherList);
-
-        mockMvc.perform(put(END_POINT_PATH + "/" + locationCode).content(requestBody).contentType(REQUEST_CONTENT_TYPE))
+        Mockito.when(hourlyWeatherService.updateHourlyWeatherByLocationCode(Mockito.eq(locationCode), Mockito.anyList())).thenReturn(hourlyWeatherList);
+        mockMvc.perform(put(requestURI).contentType(REQUEST_CONTENT_TYPE).content(requestBody))
                 .andExpect(status().isOk())
+                .andDo(print());
+
+    }
+
+//    private List<HourlyWeather> dtoListToEntityList(List<HourlyWeatherDto> hourlyWeatherDtoList) {
+//
+//        List<HourlyWeather> hourlyWeatherList = new ArrayList<>();
+//        hourlyWeatherDtoList.forEach(dto -> {
+//            HourlyWeather entity = HourlyWeatherMapper.INSTANCE.dtoToEntity(dto);
+//            hourlyWeatherList.add(entity);
+//        });
+//        return hourlyWeatherList;
+//    }
+
+    @Test
+    public void testUpdateHourlyWeatherForecastByCodeShouldReturn404NotFoundDueToLocation() throws Exception {
+        String locationCode = "VN_HIHI";
+        String requestURI = END_POINT_PATH + "/" + locationCode;
+        LocationNotFoundException exception = new LocationNotFoundException(locationCode);
+
+        HourlyWeatherDto dto1 = HourlyWeatherDto.builder().temperature(50).precipitation(50).hourOfDay(16).status("Cold").build();
+        HourlyWeatherDto dto2 = HourlyWeatherDto.builder().temperature(50).precipitation(60).hourOfDay(17).status("Freeze").build();
+
+        List<HourlyWeatherDto> inputs = List.of(dto1, dto2);
+        String bodyRequest = objectMapper.writeValueAsString(inputs);
+
+        Mockito.when(hourlyWeatherService.updateHourlyWeatherByLocationCode(Mockito.eq(locationCode), Mockito.anyList())).thenThrow(exception);
+
+        mockMvc.perform(put(requestURI).contentType(REQUEST_CONTENT_TYPE).content(bodyRequest))
+                .andExpect(status().isNotFound())
+                .andDo(print());
+    }
+
+    @Test
+    public void testUpdateHourlyWeatherForecastByCodeShouldReturn400BadRequestDuetoEmptyListBody() throws Exception
+    {
+        String locationCode = "VN_HN";
+        String requestURI = END_POINT_PATH + "/" + locationCode;
+
+        HourlyWeatherDto dto1 = HourlyWeatherDto.builder().temperature(700).precipitation(50).hourOfDay(24).status("Cold").build();
+
+        List<HourlyWeatherDto> inputs = List.of(dto1);
+        String requestBody = objectMapper.writeValueAsString(inputs);
+
+        mockMvc.perform(put(requestURI).contentType(REQUEST_CONTENT_TYPE).content(requestBody))
+                .andExpect(status().isBadRequest())
                 .andDo(print());
 
 
     }
 
-    public HourlyWeatherDto entityToDto(HourlyWeather hourlyWeather) {
-        HourlyWeatherDto dto = modelMapper.map(hourlyWeather, HourlyWeatherDto.class);
-        dto.setHourOfDay(hourlyWeather.getHourlyWeatherId().getHourOfDay());
-        return dto;
-    }
 
 }
 

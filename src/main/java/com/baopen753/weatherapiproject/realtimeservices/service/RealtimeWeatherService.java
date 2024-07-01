@@ -1,22 +1,14 @@
 package com.baopen753.weatherapiproject.realtimeservices.service;
 
-import com.baopen753.weatherapiproject.global.ErrorDTO;
 import com.baopen753.weatherapiproject.locationservices.entity.Location;
 import com.baopen753.weatherapiproject.locationservices.exception.LocationNotFoundException;
 import com.baopen753.weatherapiproject.locationservices.repository.LocationRepository;
 import com.baopen753.weatherapiproject.realtimeservices.entity.RealtimeWeather;
 import com.baopen753.weatherapiproject.realtimeservices.exception.RealtimeNotUpdatedException;
 import com.baopen753.weatherapiproject.realtimeservices.repository.RealtimeWeatherRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpRequest;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.util.Date;
 

@@ -24,36 +24,21 @@ public class LocationService {
         return locationRepository.findAll();
     }
 
-    public Location findLocationByCode(String code) throws LocationNotFoundException {
+    public Location findLocationByCode(String code) {
         Location location = locationRepository.findLocationsByCode(code);
         if (location == null) throw new LocationNotFoundException(code);
         return location;
     }
 
-    public Location checkLocationExist(String code) {
-        Location location = this.locationRepository.findLocationsByCode(code);
-        return location != null ? location : null;
-    }
-
-
-    public List<Location> findLocationByCountryCode(String countryCode) throws LocationNotFoundException {
-        List<Location> locationList = locationRepository.findAll().stream().filter(location -> location.getCountryCode().equalsIgnoreCase(countryCode)).toList();
-        if (locationList.isEmpty() || locationList == null)
-            throw new LocationNotFoundException(countryCode);
-        return locationList;
-    }
-
-
     @Transactional
-    public Location create(Location location) throws LocationExistedException {
+    public Location create(Location location) {
         Location locationInDb = locationRepository.findLocationsByCode(location.getCode());
         if (locationInDb != null) throw new LocationExistedException("Duplicated location code. Try again !");
         return locationRepository.save(location);
     }
 
-
     @Transactional
-    public Location update(Location locationInRequest) throws LocationNotFoundException {
+    public Location update(Location locationInRequest) {
 
         String codeInRequest = locationInRequest.getCode();
         Location locationInDb = locationRepository.findLocationsByCode(codeInRequest);
@@ -69,9 +54,8 @@ public class LocationService {
         return locationRepository.save(locationInDb);
     }
 
-
     @Transactional
-    public void delete(String code) throws LocationNotFoundException {
+    public void delete(String code) {
         Location locationInDb = locationRepository.findLocationsByCode(code);
         if (locationInDb == null) throw new LocationNotFoundException((code));
         locationRepository.deleteByCode(code);
