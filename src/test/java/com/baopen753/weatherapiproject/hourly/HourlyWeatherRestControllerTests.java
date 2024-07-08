@@ -82,7 +82,7 @@ public class HourlyWeatherRestControllerTests {
 
         Mockito.when(geolocationService.getLocation(Mockito.anyString())).thenReturn(locationMappedFromIp);
 
-        Mockito.when(hourlyWeatherService.getHourlyWeatherByLocation(locationMappedFromIp, currentOfHour)).thenReturn(List.of(hourlyWeather1, hourlyWeather2));
+        Mockito.when(hourlyWeatherService.getHourlyWeathersByLocation(locationMappedFromIp, currentOfHour)).thenReturn(List.of(hourlyWeather1, hourlyWeather2));
 
         mockMvc.perform(get(END_POINT_PATH).header(X_CURRENT_HOUR, String.valueOf(currentOfHour))).andExpect(status().isOk()).andDo(print());
     }
@@ -99,7 +99,7 @@ public class HourlyWeatherRestControllerTests {
 
         Mockito.when(geolocationService.getLocation(Mockito.anyString())).thenReturn(locationMappedFromIp);
 
-        Mockito.when(hourlyWeatherService.getHourlyWeatherByLocation(locationMappedFromIp, currentOfHour)).thenReturn(new ArrayList<>());   // return an empty array which indidate that List<HourlyWeather> is null
+        Mockito.when(hourlyWeatherService.getHourlyWeathersByLocation(locationMappedFromIp, currentOfHour)).thenReturn(new ArrayList<>());   // return an empty array which indidate that List<HourlyWeather> is null
 
         mockMvc.perform(get(END_POINT_PATH).header(X_CURRENT_HOUR, String.valueOf(currentOfHour))).andExpect(status().isNoContent()).andDo(print());
     }
@@ -137,7 +137,7 @@ public class HourlyWeatherRestControllerTests {
         Mockito.when(geolocationService.getLocation(Mockito.anyString())).thenReturn(location);
 
         LocationNotFoundException exception = new LocationNotFoundException(location.getCountryCode(), location.getCityName());
-        Mockito.when(hourlyWeatherService.getHourlyWeatherByLocation(location, currentHour)).thenThrow(exception);
+        Mockito.when(hourlyWeatherService.getHourlyWeathersByLocation(location, currentHour)).thenThrow(exception);
 
         mockMvc.perform(get(END_POINT_PATH).header(X_CURRENT_HOUR, String.valueOf(currentHour))).andExpect(status().isNotFound()).andDo(print());
     }
@@ -163,7 +163,7 @@ public class HourlyWeatherRestControllerTests {
         HourlyWeather hourlyWeather2 = HourlyWeather.builder().temperature(90).precipitation(90).status("Hot").hourlyWeatherId(hourlyWeatherId2).build();
 
 
-        Mockito.when(hourlyWeatherService.getHourlyWeatherByCode(locationGetFromCode.getCode(), currentHour)).thenReturn(List.of(hourlyWeather1, hourlyWeather2));
+        Mockito.when(hourlyWeatherService.getHourlyWeathersByCode(locationGetFromCode.getCode(), currentHour)).thenReturn(List.of(hourlyWeather1, hourlyWeather2));
         mockMvc.perform(get(END_POINT_PATH + "/" + locationCode).header(X_CURRENT_HOUR, 16)).andExpect(status().isOk()).andDo(print());
     }
 
@@ -172,7 +172,7 @@ public class HourlyWeatherRestControllerTests {
         String locationCode = "VN_HN";
         Integer currentHour = 20;
 
-        Mockito.when(hourlyWeatherService.getHourlyWeatherByCode(locationCode, currentHour)).thenReturn(Collections.emptyList());
+        Mockito.when(hourlyWeatherService.getHourlyWeathersByCode(locationCode, currentHour)).thenReturn(Collections.emptyList());
         mockMvc.perform(get(END_POINT_PATH + "/" + locationCode).header(X_CURRENT_HOUR, String.valueOf(currentHour))).andExpect(status().isNoContent()).andDo(print());
     }
 
@@ -181,7 +181,7 @@ public class HourlyWeatherRestControllerTests {
         String locationCode = "VN_HN";
         Integer currentHour = 17;
 
-        Mockito.when(hourlyWeatherService.getHourlyWeatherByCode(locationCode, currentHour)).thenReturn(new ArrayList<>());
+        Mockito.when(hourlyWeatherService.getHourlyWeathersByCode(locationCode, currentHour)).thenReturn(new ArrayList<>());
         mockMvc.perform(get(END_POINT_PATH + "/" + locationCode)).andExpect(status().isBadRequest()).andDo(print());
     }
 
@@ -195,7 +195,7 @@ public class HourlyWeatherRestControllerTests {
 
         LocationNotFoundException exception = new LocationNotFoundException(countryCode, cityName);
 
-        Mockito.when(hourlyWeatherService.getHourlyWeatherByCode(locationCode, currentHour)).thenThrow(exception);
+        Mockito.when(hourlyWeatherService.getHourlyWeathersByCode(locationCode, currentHour)).thenThrow(exception);
 
         mockMvc.perform(get(END_POINT_PATH + "/" + locationCode).header(X_CURRENT_HOUR, currentHour)).andExpect(status().isNotFound()).andDo(print());
     }
@@ -248,7 +248,7 @@ public class HourlyWeatherRestControllerTests {
         String requestBody = objectMapper.writeValueAsString(hourlyWeatherDtoList);
 
 
-        Mockito.when(hourlyWeatherService.updateHourlyWeatherByLocationCode(Mockito.eq(locationCode), Mockito.anyList())).thenReturn(hourlyWeatherList);
+        Mockito.when(hourlyWeatherService.updateHourlyWeathersByLocationCode(Mockito.eq(locationCode), Mockito.anyList())).thenReturn(hourlyWeatherList);
         mockMvc.perform(put(requestURI).contentType(REQUEST_CONTENT_TYPE).content(requestBody))
                 .andExpect(status().isOk())
                 .andDo(print());
@@ -277,7 +277,7 @@ public class HourlyWeatherRestControllerTests {
         List<HourlyWeatherDto> inputs = List.of(dto1, dto2);
         String bodyRequest = objectMapper.writeValueAsString(inputs);
 
-        Mockito.when(hourlyWeatherService.updateHourlyWeatherByLocationCode(Mockito.eq(locationCode), Mockito.anyList())).thenThrow(exception);
+        Mockito.when(hourlyWeatherService.updateHourlyWeathersByLocationCode(Mockito.eq(locationCode), Mockito.anyList())).thenThrow(exception);
 
         mockMvc.perform(put(requestURI).contentType(REQUEST_CONTENT_TYPE).content(bodyRequest))
                 .andExpect(status().isNotFound())

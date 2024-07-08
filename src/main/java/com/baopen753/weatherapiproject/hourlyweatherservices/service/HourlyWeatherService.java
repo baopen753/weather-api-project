@@ -22,7 +22,7 @@ public class HourlyWeatherService {
         this.locationRepository = locationRepository;
     }
 
-    public List<HourlyWeather> getHourlyWeatherByLocation(Location location, Integer currentHour) {
+    public List<HourlyWeather> getHourlyWeathersByLocation(Location location, Integer currentHour) {
         String countryCode = location.getCountryCode();
         String cityName = location.getCityName();
 
@@ -33,7 +33,7 @@ public class HourlyWeatherService {
         return hourlyWeatherList;
     }
 
-    public List<HourlyWeather> getHourlyWeatherByCode(String code, Integer currentHour) {
+    public List<HourlyWeather> getHourlyWeathersByCode(String code, Integer currentHour) {
         Location locationInDb = locationRepository.findLocationsByCode(code);
 
         if (locationInDb == null) throw new LocationNotFoundException(code);
@@ -42,14 +42,14 @@ public class HourlyWeatherService {
         return hourlyWeatherList;
     }
 
-    public List<HourlyWeather> updateHourlyWeatherByLocationCode(String code, List<HourlyWeather> hourlyWeatherListInRequest) {
+    public List<HourlyWeather> updateHourlyWeathersByLocationCode(String code, List<HourlyWeather> hourlyWeatherListInRequest) {
 
         // 1. check there is an existed location with input code
         Location locationInDb = locationRepository.findLocationsByCode(code);
         if (locationInDb == null) throw new LocationNotFoundException(code);
 
 
-        // 2. Set location property of HourWeatherId in each item within ListInRequest
+        // 2. Set location property of HourWeatherId in each item within ListInRequest. Because it indeed is originated from ListDTO (haven't set Location)
         for(HourlyWeather item : hourlyWeatherListInRequest) {
             item.getHourlyWeatherId().setLocation(locationInDb);
         }
@@ -64,15 +64,14 @@ public class HourlyWeatherService {
                 hourlyWeatherListToBeDeleted.add(item.getShallowCopy());     // potentially vulnerable StackOverFlow due to equals(), hashCode() in Entity class
         }
 
+
         // 4. delete all item in db which existed in ToBeRemoved
         for (HourlyWeather item : hourlyWeatherListToBeDeleted) {
-            hourlyWeatherListInDb.remove(item);
+            hourlyWeatherListInDb.remove(item);                     // Removing this List<Entity> still affected database due to 'cascade = CascadeType.ALL' of @OneToMany relationship from Location
         }
 
         return hourlyWeatherRepository.saveAll(hourlyWeatherListInRequest);
     }
-
-
 }
 
 

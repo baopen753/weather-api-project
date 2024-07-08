@@ -6,18 +6,18 @@ import com.baopen753.weatherapiproject.GeolocationService;
 import com.baopen753.weatherapiproject.hourlyweatherservices.dto.HourlyWeatherDto;
 import com.baopen753.weatherapiproject.hourlyweatherservices.dto.HourlyWeatherListDto;
 import com.baopen753.weatherapiproject.hourlyweatherservices.entity.HourlyWeather;
-import com.baopen753.weatherapiproject.hourlyweatherservices.entity.HourlyWeatherId;
 import com.baopen753.weatherapiproject.hourlyweatherservices.exception.BadRequestException;
 import com.baopen753.weatherapiproject.hourlyweatherservices.mapper.HourlyWeatherMapper;
 import com.baopen753.weatherapiproject.hourlyweatherservices.service.HourlyWeatherService;
 import com.baopen753.weatherapiproject.locationservices.entity.Location;
 
-import com.baopen753.weatherapiproject.locationservices.service.LocationService;
 import jakarta.servlet.http.HttpServletRequest;
 
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -32,16 +32,16 @@ import java.util.List;
 
 public class HourlyWeatherRestController {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(HourlyWeatherRestController.class);
+
     private HourlyWeatherService hourlyWeatherService;
     private GeolocationService geolocationService;
-    private LocationService locationService;
     private ModelMapper modelMapper;
 
     @Autowired
-    public HourlyWeatherRestController(HourlyWeatherService hourlyWeatherService, GeolocationService geolocationService, LocationService locationService, ModelMapper modelMapper) {
+    public HourlyWeatherRestController(HourlyWeatherService hourlyWeatherService, GeolocationService geolocationService, ModelMapper modelMapper) {
         this.hourlyWeatherService = hourlyWeatherService;
         this.geolocationService = geolocationService;
-        this.locationService = locationService;
         this.modelMapper = modelMapper;
     }
 
@@ -51,14 +51,6 @@ public class HourlyWeatherRestController {
         return dto;
     }
 
-    private HourlyWeather dtoToEntity(HourlyWeatherDto dto) {                    // this class can only map (temperature, precipitation, status, hour_of_day) from dto -> entity
-        HourlyWeather entity = modelMapper.map(dto, HourlyWeather.class);        // but, entity.location not yet
-
-        HourlyWeatherId hourlyWeatherId = HourlyWeatherId.builder().hourOfDay(dto.getHourOfDay()).build();
-
-        entity.setHourlyWeatherId(hourlyWeatherId);
-        return entity;
-    }
 
     private HourlyWeatherListDto entityListToDto(List<HourlyWeather> hourlyWeatherList) {
 
@@ -86,7 +78,6 @@ public class HourlyWeatherRestController {
     }
 
 
-
     @GetMapping
     public ResponseEntity<?> listHourlyWeatherForecastByIpAddress(HttpServletRequest request) {
 
@@ -95,7 +86,7 @@ public class HourlyWeatherRestController {
         Integer currentHour = CommonUtility.getCurrentHour(request);
 
         Location locationInMappedFromIp = geolocationService.getLocation(ipAddress);
-        List<HourlyWeather> hourlyWeatherList = hourlyWeatherService.getHourlyWeatherByLocation(locationInMappedFromIp, currentHour);
+        List<HourlyWeather> hourlyWeatherList = hourlyWeatherService.getHourlyWeathersByLocation(locationInMappedFromIp, currentHour);
 
         if (hourlyWeatherList.isEmpty()) return ResponseEntity.noContent().build();
 
@@ -108,7 +99,7 @@ public class HourlyWeatherRestController {
 
         Integer currentHour = CommonUtility.getCurrentHour(request);
 
-        List<HourlyWeather> hourlyWeatherList = hourlyWeatherService.getHourlyWeatherByCode(code, currentHour);
+        List<HourlyWeather> hourlyWeatherList = hourlyWeatherService.getHourlyWeathersByCode(code, currentHour);
         if (hourlyWeatherList.isEmpty()) return ResponseEntity.noContent().build();
 
         HourlyWeatherListDto result = entityListToDto(hourlyWeatherList);
@@ -125,15 +116,13 @@ public class HourlyWeatherRestController {
         // convert DTO list ---> Entity list
         List<HourlyWeather> convertedHourlyWeatherListFromRequest = dtoListToEntityList(hourlyWeatherDtoList);
 
-        List<HourlyWeather> updatedHourlyWeatherList = hourlyWeatherService.updateHourlyWeatherByLocationCode(code, convertedHourlyWeatherListFromRequest);
+        List<HourlyWeather> updatedHourlyWeatherList = hourlyWeatherService.updateHourlyWeathersByLocationCode(code, convertedHourlyWeatherListFromRequest);
         // return hourlyWeather list after update
 
         // convert Entity list ---> listDto object
         HourlyWeatherListDto result = entityListToDto(updatedHourlyWeatherList);
         return ResponseEntity.ok(result);
     }
-
-
 }
 
 

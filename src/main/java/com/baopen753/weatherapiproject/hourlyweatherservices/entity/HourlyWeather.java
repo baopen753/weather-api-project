@@ -15,7 +15,6 @@ import java.util.Objects;
 @Getter
 @Builder
 
-
 @Entity
 @Table(name = "hourly_weather")
 public class HourlyWeather {
@@ -23,13 +22,13 @@ public class HourlyWeather {
     @EmbeddedId
     private HourlyWeatherId hourlyWeatherId = new HourlyWeatherId();
 
-    @JsonProperty("temperature")
+    @Column(name = "temperature", nullable = false)
     private Integer temperature;
 
-    @JsonProperty("precipitation")
+    @Column(name = "precipitation", nullable = false)
     private Integer precipitation;
 
-    @Column(name = "status", length = 50)
+    @Column(name = "status", length = 50, nullable = false)
     private String status;
 
     public HourlyWeather getShallowCopy() {

@@ -1,10 +1,12 @@
 package com.baopen753.weatherapiproject.hourlyweatherservices.entity;
 
 import com.baopen753.weatherapiproject.locationservices.entity.Location;
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
@@ -25,11 +27,13 @@ import java.util.Objects;
 @Embeddable
 public class HourlyWeatherId implements Serializable {
 
-    @Length(min = 0, max = 23, message = "Hour of day should be 0-23 in length")
+    @Column(name = "hour_of_day")
+    @Min(value = 0, message = "Hour of day should be [0,23]")
+    @Max(value = 23, message = "Hour of day should be [0,23]")
     private Integer hourOfDay;
 
     @ManyToOne
-    @JoinColumn(name = "location_code")   // is the name of column within table - not name of object properties
+    @JoinColumn(name = "location_code")       // is the name of column will be set within table - not name of object properties
     private Location location;
 
     @Override
@@ -42,7 +46,7 @@ public class HourlyWeatherId implements Serializable {
         if (this == obj) return true;
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
-        HourlyWeatherId other = (HourlyWeatherId) obj;
-        return hourOfDay == other.hourOfDay && Objects.equals(location, other.location);
+        HourlyWeatherId that = (HourlyWeatherId) obj;
+        return Objects.equals(this.hourOfDay, that.hourOfDay) && Objects.equals(this.location, that.location);
     }
 }

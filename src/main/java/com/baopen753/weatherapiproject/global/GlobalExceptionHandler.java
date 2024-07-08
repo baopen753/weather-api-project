@@ -7,6 +7,7 @@ import com.baopen753.weatherapiproject.locationservices.exception.LocationExiste
 import com.baopen753.weatherapiproject.locationservices.exception.LocationNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,12 +30,15 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @ControllerAdvice  // define a global exception handling
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     // private static final Logger LOGGER = LoggerFactory.getLogger(LocationNotFoundException.class);
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -106,7 +110,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ResponseBody
     public ErrorDTO handlerConstraintViolationException(HttpServletRequest request, Exception exception) {
         // Logger the message to console
-        LOGGER.error("This is log message: " + exception.getMessage());
+        LOGGER.error("This is log message: " + exception.getMessage() + " from handlerConstraintViolationException");
 
         // create Error object
         ErrorDTO errorDTO = new ErrorDTO();
@@ -115,8 +119,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         errorDTO.setTimeStamp(new Date());
         errorDTO.setStatus(HttpStatus.BAD_REQUEST.value());
         errorDTO.setPath(request.getServletPath());
-        errorDTO.addError(exception.getMessage());
 
+        if (exception instanceof ConstraintViolationException) {
+            int count = 0;
+            ConstraintViolationException cve = (ConstraintViolationException) exception;
+            Set<ConstraintViolation<?>> constraintViolations = cve.getConstraintViolations();
+            for (ConstraintViolation<?> constraintViolation : constraintViolations) {
+                errorDTO.addError(constraintViolation.getMessage());
+            }
+        }
+        else
+            errorDTO.addError(exception.getMessage());
         return errorDTO;
     }
 
@@ -156,7 +169,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(BadRequestException.class)     // handle when updating hourlyweather without body list request
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public ErrorDTO handerRequestEmptyListBody(HttpServletRequest request, Exception exception) {
+    public ErrorDTO handleRequestEmptyListBodyWithBranches(HttpServletRequest request, Exception exception) {
         LOGGER.error("This is log message: " + exception.getMessage());
 
         ErrorDTO errorDTO = new ErrorDTO();
@@ -168,7 +181,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         return errorDTO;
     }
-
 
 
     /// this method is used to catch invalid input fields within HourlyWeatherDto
@@ -186,9 +198,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         fieldErrors.forEach(fieldError -> {
             error.addError(fieldError.getDefaultMessage());
         });
-
         return new ResponseEntity<>(error, headers, status);
     }
+
+
+
 
 
 

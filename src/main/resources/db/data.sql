@@ -26,7 +26,7 @@ INSERT INTO locations(enabled,trashed,country_code,code,city_name,country_name,r
 VALUES (false,false,'VN','VN_HL','Halong','Socialist Republic of Vietnam','North');
 
 INSERT INTO locations(enabled,trashed,country_code,code,city_name,country_name,region_name)
-VALUES (true,false,'VN','VN_HN','Hanoi','Vietnam','Myduc');
+VALUES (true,false,'VN','VN_HN','Hanoi','Vietnam','North');
 
 INSERT INTO locations(enabled,trashed,country_code,code,city_name,country_name,region_name)
 VALUES (false,false,'VN','VN_HP','Haiphong','Socialist Republic of Vietnam','North');
@@ -72,3 +72,23 @@ VALUES (8, 60, 60, 'USA_LA','Cloudy');
 INSERT INTO hourly_weather(hour_of_day, precipitation, temperature, location_code, status)
 VALUES (12, 80, 80, 'VN_QB','Hot');
 
+
+INSERT INTO daily_weather(day_of_month, max_temperature,min_temperature, month, precipitation, status, location_code)
+VALUES (12,50,34,2,56,'Cosy','VN_HN');
+
+INSERT INTO daily_weather(day_of_month, max_temperature,min_temperature, month, precipitation, status, location_code)
+VALUES (13,40,20,2,56,'Cold','VN_HN');
+
+INSERT INTO daily_weather(day_of_month, max_temperature,min_temperature, month, precipitation, status, location_code)
+VALUES (14,80,70,2,56,'Hot','VN_HN');
+
+
+
+INSERT INTO daily_weather(day_of_month, max_temperature,min_temperature, month, precipitation, status, location_code)
+VALUES (12,50,34,2,56,'Cosy','VN_HCM');
+
+INSERT INTO daily_weather(day_of_month, max_temperature,min_temperature, month, precipitation, status, location_code)
+VALUES (13,40,20,2,56,'Cold','VN_HCM');
+
+INSERT INTO daily_weather(day_of_month, max_temperature,min_temperature, month, precipitation, status, location_code)
+VALUES (14,80,70,2,56,'Hot','VN_HCM');
