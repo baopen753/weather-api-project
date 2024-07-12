@@ -1,13 +1,11 @@
 package com.baopen753.weatherapiproject.realtimeservices.entity;
 
 import com.baopen753.weatherapiproject.locationservices.entity.Location;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
 
-@NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
@@ -44,4 +42,13 @@ public class RealtimeWeather {
     @JoinColumn(name = "location_code")
     @MapsId
     private Location location;
+
+    public RealtimeWeather() {
+        this.temperature = 0;
+        this.humidity = 0;
+        this.precipitation = 0;
+        this.windSpeed = 0;
+        this.status = null;
+        this.lastUpdated = null;
+    }
 }

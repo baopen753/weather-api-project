@@ -1,6 +1,7 @@
 package com.baopen753.weatherapiproject.realtimeservices.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -20,7 +21,8 @@ import java.util.Date;
 public class RealtimeWeatherDto {
 
     @JsonProperty("location")
-    private String location ;       // the value of String 'location' is fetched by property with same name 'location'
+    @JsonInclude(JsonInclude.Include.NON_NULL)     // hide location property in case of containing 'null'
+    private String locationAddress ;       // the value of String 'location' is fetched by property with same name 'location'
     //                                           if fetched 'location' is primitive properties   --> fetching data is its value
     //                                           if fetched 'location' is an object              --> fetching data to its toString()
     //  in this case: toString() value of Location object of Model is fetched into String location of DTO

@@ -24,7 +24,6 @@ public class RealtimeWeatherService {
         this.locationRepository = locationRepository;
     }
 
-
     public RealtimeWeather getRealtimeWeatherByLocation(Location location)  {
         String countryCode = location.getCountryCode();
         String cityName = location.getCityName();
@@ -61,6 +60,5 @@ public class RealtimeWeatherService {
 
         return realtimeWeatherRepository.save(newRealtimeWeather);
     }
-
 
 }

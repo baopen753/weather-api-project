@@ -7,6 +7,7 @@ import com.baopen753.weatherapiproject.locationservices.entity.Location;
 import com.baopen753.weatherapiproject.realtimeservices.dto.RealtimeWeatherDto;
 import com.baopen753.weatherapiproject.realtimeservices.entity.RealtimeWeather;
 import com.baopen753.weatherapiproject.realtimeservices.exception.RealtimeNotUpdatedException;
+import com.baopen753.weatherapiproject.realtimeservices.mapper.RealtimeWeatherMapper;
 import com.baopen753.weatherapiproject.realtimeservices.service.RealtimeWeatherService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,14 +30,11 @@ public class RealtimeWeatherRestController {
 
     private RealtimeWeatherService realtimeWeatherService;
     private GeolocationService geolocationService;
-    private ModelMapper modelMapper;
 
-    public RealtimeWeatherRestController(RealtimeWeatherService realtimeWeatherService, GeolocationService geolocationService, ModelMapper modelMapper) {
+    public RealtimeWeatherRestController(RealtimeWeatherService realtimeWeatherService, GeolocationService geolocationService) {
         this.realtimeWeatherService = realtimeWeatherService;
         this.geolocationService = geolocationService;
-        this.modelMapper = modelMapper;
     }
-
     /*
      *   This method is used to get realtime weather based on Ip address taken from HTTP request
      *
@@ -44,37 +42,34 @@ public class RealtimeWeatherRestController {
      *   @return: ResponseEntity
      */
 
-    private RealtimeWeatherDto entityToDto(RealtimeWeather realtimeWeather) {
-        return modelMapper.map(realtimeWeather, RealtimeWeatherDto.class);
-    }
-
-    private RealtimeWeather dtoToEntity(RealtimeWeatherDto dto) {
-        return modelMapper.map(dto, RealtimeWeather.class);
-    }
-
     @GetMapping
     public ResponseEntity<?> getRealtimeWeatherByIpAddress(HttpServletRequest request) {
         String ipAddress = CommonUtility.getIPAddress(request);
         Location locationMappedFromIp = geolocationService.getLocation(ipAddress);
         RealtimeWeather realtimeWeather = realtimeWeatherService.getRealtimeWeatherByLocation(locationMappedFromIp);
-        return ResponseEntity.ok(entityToDto(realtimeWeather));
+        RealtimeWeatherDto result = RealtimeWeatherMapper.INSTANCE.entityToDto(realtimeWeather);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{code}")
     public ResponseEntity<?> getRealtimeWeatherByLocation(@PathVariable String code) {
-        RealtimeWeather locationInRequest = realtimeWeatherService.getRealtimeWeatherByCode(code);
-        return ResponseEntity.ok(entityToDto(locationInRequest));
+        RealtimeWeather realtimeWeather = realtimeWeatherService.getRealtimeWeatherByCode(code);
+        RealtimeWeatherDto result = RealtimeWeatherMapper.INSTANCE.entityToDto(realtimeWeather);
+        return ResponseEntity.ok(result);
     }
+
 
     @PutMapping("/{code}")
     public ResponseEntity<?> updateRealtimeWeatherByCode(@RequestBody @Valid RealtimeWeatherDto realtimeWeatherDto, @PathVariable String code) {
 
-        RealtimeWeather realtimeWeatherBodyRequest = dtoToEntity(realtimeWeatherDto);
+        RealtimeWeather realtimeWeatherBodyRequest = RealtimeWeatherMapper.INSTANCE.dtoToEntity(realtimeWeatherDto);
         realtimeWeatherBodyRequest.setLocationCode(code);
 
         RealtimeWeather updatedRealtime = realtimeWeatherService.updateRealtimeWeatherByCode(code, realtimeWeatherBodyRequest);
-        return ResponseEntity.ok(entityToDto(updatedRealtime));
+        RealtimeWeatherDto result = RealtimeWeatherMapper.INSTANCE.entityToDto(updatedRealtime);
+        return ResponseEntity.ok(result);
     }
+
 
     @ExceptionHandler(RealtimeNotUpdatedException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

@@ -1,6 +1,5 @@
 package com.baopen753.weatherapiproject.hourlyweatherservices.restcontroller;
 
-
 import com.baopen753.weatherapiproject.CommonUtility;
 import com.baopen753.weatherapiproject.GeolocationService;
 import com.baopen753.weatherapiproject.hourlyweatherservices.dto.HourlyWeatherDto;

@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.Range;
 
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Data

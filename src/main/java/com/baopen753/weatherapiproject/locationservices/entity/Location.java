@@ -12,18 +12,12 @@ package com.baopen753.weatherapiproject.locationservices.entity;
 import com.baopen753.weatherapiproject.dailyweatherservices.entity.DailyWeather;
 import com.baopen753.weatherapiproject.hourlyweatherservices.entity.HourlyWeather;
 import com.baopen753.weatherapiproject.realtimeservices.entity.RealtimeWeather;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.hibernate.validator.constraints.Length;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
 
 @Entity
 @Table(name = "locations")
@@ -31,43 +25,27 @@ import java.util.Objects;
 @Getter
 @Setter
 
-
 public class Location {
 
     @Id
     @Column(name = "code", length = 12, nullable = false, unique = true)
     //  using @Column(name = "code") for database first
-    //  Validation should be implemented within the service layer instead of persistence layer
-    @NotBlank(message = "location code cannot be blank")
-    // JsonProperty: make sure there must have corresponding JSON field in RequestBody
-    @Length(min = 4, max = 12, message = "location code should be 4-12 in length")
-    @JsonProperty("code")
     private String code;
 
     @Column(length = 128, nullable = false)
-    @NotBlank(message = "city_name cannot be blank")
-    @JsonProperty("city_name")
     private String cityName;
 
     @Column(length = 128, nullable = false)
-    @NotBlank(message = "country_name cannot be blank")
-    @JsonProperty("country_name")
     private String countryName;
 
     @Column(length = 128, nullable = true)
-    @NotNull(message = "region_name cannot be null")
-    @JsonProperty("region_name")
     private String regionName;
 
     @Column(length = 6, nullable = false)
-    @NotBlank(message = "country_code cannot be blank")
-    @JsonProperty("country_code")
     private String countryCode;
 
-    @JsonIgnore
     private boolean enabled;
 
-    @JsonIgnore
     private boolean trashed;
 
     @OneToOne(mappedBy = "location", cascade = CascadeType.ALL)     // unidirectional
@@ -121,5 +99,13 @@ public class Location {
     }
 
 
+    public void cloneFieldsFrom(Location other) {
+        this.cityName = other.cityName;
+        this.countryName = other.countryName;
+        this.regionName = other.regionName;
+        this.countryCode = other.countryCode;
+        this.enabled = other.enabled;
+        this.code = other.code;
+    }
 }
 

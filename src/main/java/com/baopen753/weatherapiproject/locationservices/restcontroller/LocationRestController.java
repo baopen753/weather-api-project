@@ -6,6 +6,7 @@ package com.baopen753.weatherapiproject.locationservices.restcontroller;
 
 import com.baopen753.weatherapiproject.locationservices.dto.LocationDto;
 import com.baopen753.weatherapiproject.locationservices.entity.Location;
+import com.baopen753.weatherapiproject.locationservices.mapper.LocationMapper;
 import com.baopen753.weatherapiproject.locationservices.service.LocationService;
 
 import jakarta.validation.Valid;
@@ -29,19 +30,16 @@ import java.util.List;
 public class LocationRestController {
 
     private LocationService service;
-    private ModelMapper mapper;
 
-
-    public LocationRestController(LocationService service, ModelMapper mapper) {
+    public LocationRestController(LocationService service ) {
         this.service = service;
-        this.mapper = mapper;
     }
 
     @GetMapping
     public ResponseEntity<?> getLocations(@RequestParam("pageSize") @Min(value = 4, message = "Minimum of page size is 4") @Max(value = 50, message = "Maximun of page size is 50") Integer pageSize, @RequestParam("pageNum") @Positive(message = "Page number must be greater than 0") Integer pageNum) {
 
         List<Location> locationList = service.findAllLocations();
-        List<LocationDto> dtoList = locationList.stream().map(location -> mapper.map(location, LocationDto.class)).toList();
+        List<LocationDto> dtoList = locationList.stream().map(location -> LocationMapper.INSTANCE.entityToDto(location)).toList();
 
         if (dtoList.isEmpty()) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(dtoList);
@@ -50,24 +48,24 @@ public class LocationRestController {
     @GetMapping("/{code}")
     public ResponseEntity<?> findLocationByCode(@PathVariable("code") String code) {
         Location location = service.findLocationByCode(code);
-        LocationDto dto = mapper.map(location, LocationDto.class);
+        LocationDto dto = LocationMapper.INSTANCE.entityToDto(location);
         return ResponseEntity.ok(dto);
     }
 
-
     @PostMapping
-    public ResponseEntity<?> addLocation(@Valid @RequestBody Location location) {
-        Location createdLocation = service.create(location);
-        LocationDto dto = mapper.map(createdLocation, LocationDto.class);
-        URI uri = URI.create("/api/v1/locations/" + location.getCode());
+    public ResponseEntity<?> addLocation(@Valid @RequestBody LocationDto locationDto) {
+        Location locationFromRequest = LocationMapper.INSTANCE.dtoToEntity(locationDto);
+        Location createdLocation = service.create(locationFromRequest);
+        LocationDto dto = LocationMapper.INSTANCE.entityToDto(createdLocation);
+        URI uri = URI.create("/api/v1/locations/" + locationFromRequest.getCode());
         return ResponseEntity.created(uri).body(dto);
     }
 
-
     @PutMapping
-    public ResponseEntity<?> updateLocation(@Valid @RequestBody Location location) {
-        Location updatedLocation = service.update(location);
-        LocationDto dto = mapper.map(updatedLocation, LocationDto.class);
+    public ResponseEntity<?> updateLocation(@Valid @RequestBody LocationDto locationDto) {
+        Location locationFromRequest = LocationMapper.INSTANCE.dtoToEntity(locationDto);
+        Location updatedLocation = service.update(locationFromRequest);
+        LocationDto dto = LocationMapper.INSTANCE.entityToDto(updatedLocation);
         return ResponseEntity.ok(dto);
     }
 

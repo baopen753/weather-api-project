@@ -1,5 +1,6 @@
 package com.baopen753.weatherapiproject.location;
 
+import com.baopen753.weatherapiproject.locationservices.dto.LocationDto;
 import com.baopen753.weatherapiproject.locationservices.entity.Location;
 import com.baopen753.weatherapiproject.locationservices.exception.LocationExistedException;
 import com.baopen753.weatherapiproject.locationservices.exception.LocationNotFoundException;
@@ -82,10 +83,12 @@ public class LocationRestControllerTests {
     @Test
     public void testUpdateShouldReturn201OK() throws Exception {
         // test with non-exsiting location
+        LocationDto testLocationFromRequest = new LocationDto("VN_NT", "Nhatrang", "Myduc", "Socialist Republic of Vietnam", "84", true, false);
+
         Location testLocation = new Location("VN_NT", "Nhatrang", "Myduc", "Socialist Republic of Vietnam", "84", true, false);
 
         // serialize POJO to JSON
-        String requestBody = objectMapper.writeValueAsString(testLocation);
+        String requestBody = objectMapper.writeValueAsString(testLocationFromRequest);
 
         // use Mockito to create test environment
         Mockito.when(locationService.create(testLocation)).thenReturn(testLocation);
@@ -155,6 +158,14 @@ public class LocationRestControllerTests {
     @Test
     public void testUpdateShouldReturn200OK() throws Exception {
         // create existing location
+        LocationDto testedLocationDto = new LocationDto();
+        testedLocationDto.setCode("VN_HN");
+        testedLocationDto.setRegionName("South");
+        testedLocationDto.setCountryCode("VN");
+        testedLocationDto.setCountryName("Socalist Republic of Vietnam");
+        testedLocationDto.setCityName("Longan");
+        testedLocationDto.setEnabled(true);
+
         Location testedLocation = new Location();
         testedLocation.setCode("VN_HN");
         testedLocation.setRegionName("South");
@@ -164,7 +175,7 @@ public class LocationRestControllerTests {
         testedLocation.setEnabled(true);
 
         // serialize POJO to JSON
-        String requestBody = objectMapper.writeValueAsString(testedLocation);
+        String requestBody = objectMapper.writeValueAsString(testedLocationDto);
 
         // use Mockito to create testing environment
         Mockito.when(locationService.update(testedLocation)).thenReturn(testedLocation);
@@ -177,7 +188,7 @@ public class LocationRestControllerTests {
     @Test
     public void testUpdateShouldReturn400BadRequest() throws Exception {
 
-        Location testedLocation = new Location();
+        LocationDto testedLocation = new LocationDto();
                                                       // create lacked properties location
                                                       // locationId shouldn't be lacked
         testedLocation.setCode("ABCDF");
@@ -223,7 +234,7 @@ public class LocationRestControllerTests {
     public void testValidateRequestBodyLocation() throws Exception   // interpret the request sent from client, validate the request before sending to Service layer
     {
         // create Location object with incompatibe
-        Location testedLocation = new Location();
+        LocationDto testedLocation = new LocationDto();
         testedLocation.setCode("VN_LA");
         testedLocation.setRegionName("South");
         testedLocation.setCountryName("Socalist Republic of Vietnam");

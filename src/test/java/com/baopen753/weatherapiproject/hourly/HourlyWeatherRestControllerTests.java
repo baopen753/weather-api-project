@@ -255,15 +255,7 @@ public class HourlyWeatherRestControllerTests {
 
     }
 
-//    private List<HourlyWeather> dtoListToEntityList(List<HourlyWeatherDto> hourlyWeatherDtoList) {
-//
-//        List<HourlyWeather> hourlyWeatherList = new ArrayList<>();
-//        hourlyWeatherDtoList.forEach(dto -> {
-//            HourlyWeather entity = HourlyWeatherMapper.INSTANCE.dtoToEntity(dto);
-//            hourlyWeatherList.add(entity);
-//        });
-//        return hourlyWeatherList;
-//    }
+
 
     @Test
     public void testUpdateHourlyWeatherForecastByCodeShouldReturn404NotFoundDueToLocation() throws Exception {
@@ -298,8 +290,6 @@ public class HourlyWeatherRestControllerTests {
         mockMvc.perform(put(requestURI).contentType(REQUEST_CONTENT_TYPE).content(requestBody))
                 .andExpect(status().isBadRequest())
                 .andDo(print());
-
-
     }
 
 

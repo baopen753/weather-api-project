@@ -7,6 +7,8 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.factory.Mappers;
 
+import java.util.List;
+
 @Mapper
 public interface HourlyWeatherMapper {
 
@@ -29,5 +31,8 @@ public interface HourlyWeatherMapper {
             @Mapping(source = "status", target = "status")
     })
     HourlyWeather dtoToEntity(HourlyWeatherDto dto);                        // note: this method has not yet mapped Location of hourlyWeatherId
+
+    List<HourlyWeatherDto> toDtoList(List<HourlyWeather> hourlyWeatherList);
+    List<HourlyWeather> toEntityList(List<HourlyWeatherDto> hourlyWeatherDtoList);
 
 }

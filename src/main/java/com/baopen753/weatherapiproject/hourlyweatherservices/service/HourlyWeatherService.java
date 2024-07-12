@@ -6,7 +6,6 @@ import com.baopen753.weatherapiproject.locationservices.entity.Location;
 import com.baopen753.weatherapiproject.locationservices.exception.LocationNotFoundException;
 import com.baopen753.weatherapiproject.locationservices.repository.LocationRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 
 import java.util.ArrayList;
 import java.util.List;
