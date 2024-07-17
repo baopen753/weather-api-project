@@ -14,7 +14,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +33,8 @@ public class LocationRestController {
     public LocationRestController(LocationService service ) {
         this.service = service;
     }
+
+
 
     @GetMapping
     public ResponseEntity<?> getLocations(@RequestParam("pageSize") @Min(value = 4, message = "Minimum of page size is 4") @Max(value = 50, message = "Maximun of page size is 50") Integer pageSize, @RequestParam("pageNum") @Positive(message = "Page number must be greater than 0") Integer pageNum) {
