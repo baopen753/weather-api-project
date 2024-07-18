@@ -7,11 +7,14 @@ import com.baopen753.weatherapiproject.dailyweatherservices.dto.DailyWeatherList
 import com.baopen753.weatherapiproject.dailyweatherservices.entity.DailyWeather;
 import com.baopen753.weatherapiproject.dailyweatherservices.mapper.DailyWeatherMapper;
 import com.baopen753.weatherapiproject.dailyweatherservices.service.DailyWeatherService;
+import com.baopen753.weatherapiproject.fullyweatherservices.restcontroller.FullyWeatherRestController;
 import com.baopen753.weatherapiproject.global.GlobalExceptionHandler;
 import com.baopen753.weatherapiproject.hourlyweatherservices.exception.BadRequestException;
+import com.baopen753.weatherapiproject.hourlyweatherservices.restcontroller.HourlyWeatherRestController;
 import com.baopen753.weatherapiproject.locationservices.entity.Location;
 import com.baopen753.weatherapiproject.locationservices.service.LocationService;
 
+import com.baopen753.weatherapiproject.realtimeservices.restcontroller.RealtimeWeatherRestController;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
@@ -19,12 +22,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/api/v1/daily")
@@ -57,7 +64,6 @@ public class DailyWeatherRestController {
     }
 
 
-
     @GetMapping
     public ResponseEntity<?> getDailyWeathersByIpAddress(HttpServletRequest request) {
         String ipAddress = CommonUtility.getIPAddress(request);
@@ -67,8 +73,9 @@ public class DailyWeatherRestController {
         if (dailyWeatherList.isEmpty()) return ResponseEntity.noContent().build();
 
         DailyWeatherListDto result = entityListToListDto(dailyWeatherList);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(addLinksByIp(result));
     }
+
 
     @GetMapping("/{code}")
     public ResponseEntity<?> getDailyWeathersByCode(@PathVariable String code) {
@@ -77,15 +84,15 @@ public class DailyWeatherRestController {
         if (dailyWeatherList.isEmpty()) return ResponseEntity.noContent().build();
 
         DailyWeatherListDto result = entityListToListDto(dailyWeatherList);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(addLinksByCode(result, code));
     }
 
+
     @PutMapping("/{code}")
-    public ResponseEntity<?> updateDailyWeathersByCode(@PathVariable String code, @RequestBody @Valid  List<DailyWeatherDto> dailyWeatherDtoList) {
+    public ResponseEntity<?> updateDailyWeathersByCode(@PathVariable String code, @RequestBody @Valid List<DailyWeatherDto> dailyWeatherDtoList) {
 
         // check isEmpty requestBody
-        if (dailyWeatherDtoList.isEmpty())
-            throw new BadRequestException("Required body request");
+        if (dailyWeatherDtoList.isEmpty()) throw new BadRequestException("Required body request");
 
         // convert List<Dto> --> List<Entity>
         List<DailyWeather> dailyWeatherListConvertedFromRequest = new ArrayList<>();
@@ -98,8 +105,28 @@ public class DailyWeatherRestController {
         if (dailyWeatherListUpdated.isEmpty()) return ResponseEntity.noContent().build();
 
         DailyWeatherListDto result = entityListToListDto(dailyWeatherListUpdated);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(addLinksByCode(result, code));
     }
+
+
+    private EntityModel<DailyWeatherListDto> addLinksByIp(DailyWeatherListDto dto) {
+        EntityModel<DailyWeatherListDto> entityModel = EntityModel.of(dto);      // of() will wrap dto as data type of EntityModel
+        entityModel.add(linkTo(methodOn(DailyWeatherRestController.class).getDailyWeathersByIpAddress(null)).withSelfRel());
+        entityModel.add(linkTo(methodOn(RealtimeWeatherRestController.class).getRealtimeWeatherByIpAddress(null)).withRel("realtime"));
+        entityModel.add(linkTo(methodOn(HourlyWeatherRestController.class).listHourlyWeatherForecastByIpAddress(null)).withRel("hourly_forecast"));
+        entityModel.add(linkTo(methodOn(FullyWeatherRestController.class).getFullyWeatherByIpAddress(null)).withRel("fully_forecast"));
+        return entityModel;
+    }
+
+    private EntityModel<DailyWeatherListDto> addLinksByCode(DailyWeatherListDto dto, String code) {
+        EntityModel<DailyWeatherListDto> entityModel = EntityModel.of(dto);      // of() will wrap dto as data type of EntityModel
+        entityModel.add(linkTo(methodOn(DailyWeatherRestController.class).getDailyWeathersByCode(code)).withSelfRel());
+        entityModel.add(linkTo(methodOn(RealtimeWeatherRestController.class).getRealtimeWeatherByLocation(code)).withRel("realtime"));
+        entityModel.add(linkTo(methodOn(HourlyWeatherRestController.class).listHourlyWeatherForecastByCode(code, null)).withRel("hourly_forecast"));
+        entityModel.add(linkTo(methodOn(FullyWeatherRestController.class).getFullyWeatherByCode(code, null)).withRel("fully_forecast"));
+        return entityModel;
+    }
+
 }
 
 

@@ -3,7 +3,10 @@ package com.baopen753.weatherapiproject.daily;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import static org.hamcrest.CoreMatchers.is;
 
 import com.baopen753.weatherapiproject.GeolocationException;
 import com.baopen753.weatherapiproject.GeolocationService;
@@ -57,7 +60,6 @@ public class DailyWeatherRestControllerTests {
     private ObjectMapper objectMapper;
 
 
-
     @Test
     public void testGetDailyWeathersByIpAddressShouldReturn200Ok() throws Exception {
 
@@ -79,7 +81,6 @@ public class DailyWeatherRestControllerTests {
                 .location(locationMappedFromIp)
                 .build();
 
-
         DailyWeather dailyWeather1 = DailyWeather.builder()
                 .dailyWeatherId(id1)
                 .precipitation(50)
@@ -99,7 +100,13 @@ public class DailyWeatherRestControllerTests {
         Mockito.when(geolocationService.getLocation(Mockito.anyString())).thenReturn(locationMappedFromIp);
         Mockito.when(dailyWeatherService.getDailyWeathersByLocation(locationMappedFromIp)).thenReturn(List.of(dailyWeather1, dailyWeather2));
 
-        mockMvc.perform(get(ENDPOINT)).andExpect(status().isOk()).andDo(print());
+        mockMvc.perform(get(ENDPOINT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._links.self.href", is("http://localhost/api/v1/daily")))
+                .andExpect(jsonPath("$._links.realtime.href", is("http://localhost/api/v1/realtime")))
+                .andExpect(jsonPath("$._links.hourly_forecast.href", is("http://localhost/api/v1/hourly")))
+                .andExpect(jsonPath("$._links.fully_forecast.href", is("http://localhost/api/v1/fully")))
+                .andDo(print());
     }
 
     @Test
@@ -142,8 +149,6 @@ public class DailyWeatherRestControllerTests {
                 .andExpect(status().isNotFound())
                 .andDo(print());
     }
-
-
 
 
     @Test
@@ -193,6 +198,10 @@ public class DailyWeatherRestControllerTests {
 
         mockMvc.perform(get(requestURI))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$._links.self.href", is("http://localhost/api/v1/daily/" + locationCode)))
+                .andExpect(jsonPath("$._links.realtime.href", is("http://localhost/api/v1/realtime/" + locationCode)))
+                .andExpect(jsonPath("$._links.hourly_forecast.href", is("http://localhost/api/v1/hourly/" + locationCode)))
+                .andExpect(jsonPath("$._links.fully_forecast.href", is("http://localhost/api/v1/fully/" + locationCode)))
                 .andDo(print());
     }
 
@@ -227,8 +236,6 @@ public class DailyWeatherRestControllerTests {
                 .andExpect(status().isNotFound())
                 .andDo(print());
     }
-
-
 
 
     @Test
@@ -298,6 +305,10 @@ public class DailyWeatherRestControllerTests {
         Mockito.when(dailyWeatherService.updateDailyWeathersByCode(Mockito.anyString(), Mockito.anyList())).thenReturn(dailyWeatherList);
         mockMvc.perform(put(requestURI).contentType(REQUEST_CONTENT_TYPE).content(requestBody))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$._links.self.href", is("http://localhost/api/v1/daily/" + locationCode)))
+                .andExpect(jsonPath("$._links.realtime.href", is("http://localhost/api/v1/realtime/" + locationCode)))
+                .andExpect(jsonPath("$._links.hourly_forecast.href", is("http://localhost/api/v1/hourly/" + locationCode)))
+                .andExpect(jsonPath("$._links.fully_forecast.href", is("http://localhost/api/v1/fully/" + locationCode)))
                 .andDo(print());
     }
 
@@ -335,7 +346,7 @@ public class DailyWeatherRestControllerTests {
         String requestBody = objectMapper.writeValueAsString(listFromRequest);
 
         LocationNotFoundException exception = new LocationNotFoundException(locationCode);
-        Mockito.when(dailyWeatherService.updateDailyWeathersByCode(Mockito.anyString(),Mockito.anyList())).thenThrow(exception);
+        Mockito.when(dailyWeatherService.updateDailyWeathersByCode(Mockito.anyString(), Mockito.anyList())).thenThrow(exception);
 
         mockMvc.perform(put(requestURI).contentType(REQUEST_CONTENT_TYPE).content(requestBody))
                 .andExpect(status().isNotFound())
@@ -351,7 +362,7 @@ public class DailyWeatherRestControllerTests {
 
         String bodyRequest = objectMapper.writeValueAsString(Collections.EMPTY_LIST);
 
-        Mockito.when(dailyWeatherService.updateDailyWeathersByCode(Mockito.anyString(),Mockito.anyList())).thenThrow(exception);
+        Mockito.when(dailyWeatherService.updateDailyWeathersByCode(Mockito.anyString(), Mockito.anyList())).thenThrow(exception);
 
         mockMvc.perform(put(requestURI).contentType(REQUEST_CONTENT_TYPE).content(bodyRequest))
                 .andExpect(status().isBadRequest())
@@ -393,7 +404,7 @@ public class DailyWeatherRestControllerTests {
         String requestBody = objectMapper.writeValueAsString(listFromRequest);
 
         LocationNotFoundException exception = new LocationNotFoundException(locationCode);
-        Mockito.when(dailyWeatherService.updateDailyWeathersByCode(Mockito.anyString(),Mockito.anyList())).thenThrow(exception);
+        Mockito.when(dailyWeatherService.updateDailyWeathersByCode(Mockito.anyString(), Mockito.anyList())).thenThrow(exception);
 
         mockMvc.perform(put(requestURI).contentType(REQUEST_CONTENT_TYPE).content(requestBody))
                 .andExpect(status().isBadRequest())
