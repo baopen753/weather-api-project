@@ -3,14 +3,15 @@ package com.baopen753.weatherapiproject.fully;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
+import static org.hamcrest.CoreMatchers.is;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.baopen753.weatherapiproject.GeolocationException;
 import com.baopen753.weatherapiproject.GeolocationService;
 import com.baopen753.weatherapiproject.dailyweatherservices.dto.DailyWeatherDto;
 import com.baopen753.weatherapiproject.fullyweatherservices.dto.FullyWeatherDto;
 import com.baopen753.weatherapiproject.fullyweatherservices.mapper.FullyWeatherMapper;
+import com.baopen753.weatherapiproject.fullyweatherservices.modelassembler.FullyWeatherModelAssembler;
 import com.baopen753.weatherapiproject.fullyweatherservices.restcontroller.FullyWeatherRestController;
 import com.baopen753.weatherapiproject.fullyweatherservices.service.FullyWeatherService;
 import com.baopen753.weatherapiproject.hourlyweatherservices.dto.HourlyWeatherDto;
@@ -24,12 +25,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 @WebMvcTest(FullyWeatherRestController.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -40,6 +41,7 @@ public class FullyWeatherRestControllerTests {
     private static final String END_POINT_PATH = "/api/v1/fully";
     private static final String X_CURRENT_HOUR = "X-Current-Hour";
     private static final String REQUEST_CONTENT_TYPE = "application/json";
+    private static final String RESPONSE_CONTENT_TYPE = "application/hal+json";
 
     @Autowired
     private MockMvc mockMvc;
@@ -49,6 +51,9 @@ public class FullyWeatherRestControllerTests {
 
     @MockBean
     private FullyWeatherService fullyWeatherService;
+
+    @SpyBean
+    private FullyWeatherModelAssembler modelAssembler;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -95,7 +100,11 @@ public class FullyWeatherRestControllerTests {
         Mockito.when(geolocationService.getLocation(Mockito.anyString())).thenReturn(testedLocation);
         Mockito.when(fullyWeatherService.getFullyWeatherByLocation(testedLocation, currentHour)).thenReturn(result);
 
-        mockMvc.perform(get(END_POINT_PATH).header(X_CURRENT_HOUR, String.valueOf(currentHour))).andExpect(status().isOk()).andDo(print());
+        mockMvc.perform(get(END_POINT_PATH).header(X_CURRENT_HOUR, String.valueOf(currentHour)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(RESPONSE_CONTENT_TYPE))
+                .andExpect(jsonPath("$._links.self.href", is("http://localhost/api/v1/fully")))
+                .andDo(print());
     }
 
     @Test
@@ -133,7 +142,7 @@ public class FullyWeatherRestControllerTests {
 
     @Test
     public void testGetFullyWeatherByCodeShouldReturn200Ok() throws Exception {
-        String validLocationCode = " VN_HN";
+        String validLocationCode = "VN_HN";
         Integer currentHour = 10;
         String requestURI = END_POINT_PATH + "/" + validLocationCode;
 
@@ -176,6 +185,8 @@ public class FullyWeatherRestControllerTests {
 
         mockMvc.perform(get(requestURI).header(X_CURRENT_HOUR, String.valueOf(currentHour)))
                 .andExpect(status().isOk())
+                .andExpect(content().contentType(RESPONSE_CONTENT_TYPE))
+                .andExpect(jsonPath("$._links.self.href", is("http://localhost/api/v1/fully/" + validLocationCode)))
                 .andDo(print());
     }
 
@@ -242,6 +253,8 @@ public class FullyWeatherRestControllerTests {
 
         mockMvc.perform(put(requestURI).content(requestBody).contentType(REQUEST_CONTENT_TYPE))
                 .andExpect(status().isOk())
+                .andExpect(content().contentType(RESPONSE_CONTENT_TYPE))
+                .andExpect(jsonPath("$._links.self.href", is("http://localhost/api/v1/fully/" + locationCode)))
                 .andDo(print());
 
 
