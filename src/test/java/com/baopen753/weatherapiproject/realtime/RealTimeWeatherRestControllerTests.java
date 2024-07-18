@@ -71,7 +71,6 @@ public class RealTimeWeatherRestControllerTests {
     LocationRepository locationRepository;
 
 
-
     /*
      *   Guide: in order to test with Exception, we need to mock environment test (Service layer) with invalid input which is compatible with the Exception
      *
@@ -95,7 +94,9 @@ public class RealTimeWeatherRestControllerTests {
         // LocationNotFoundException occurs within RealtimeWeatherService.get...ByLocation()     // we need to specify Exception object as Throw()
         Mockito.when(realtimeWeatherService.getRealtimeWeatherByLocation(location)).thenThrow(exception);
 
-        mockMvc.perform(get(ENDPOINT)).andExpect(status().isNotFound()).andDo(print());
+        mockMvc.perform(get(ENDPOINT))
+                .andExpect(status().isNotFound())
+                .andDo(print());
 
     }
 
@@ -121,10 +122,13 @@ public class RealTimeWeatherRestControllerTests {
         Mockito.when(geolocationService.getLocation(Mockito.anyString())).thenReturn(location);
         Mockito.when(realtimeWeatherService.getRealtimeWeatherByLocation(location)).thenReturn(realtimeWeather);
 
-        String expectedLocationResponse = location.getRegionName() + ", " + location.getCityName() + ", " + location.getCountryName();
-
-
-        mockMvc.perform(get(ENDPOINT)).andExpect(status().isOk()).andDo(print());
+        mockMvc.perform(get(ENDPOINT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._links.self.href", is("http://localhost/api/v1/realtime")))
+                .andExpect(jsonPath("$._links.hourly_weather.href", is("http://localhost/api/v1/hourly")))
+                .andExpect(jsonPath("$._links.daily_weather.href", is("http://localhost/api/v1/daily")))
+                .andExpect(jsonPath("$._links.fully_weather.href", is("http://localhost/api/v1/fully")))
+                .andDo(print());
     }
 
     @Test
@@ -154,7 +158,13 @@ public class RealTimeWeatherRestControllerTests {
 
         Mockito.when(realtimeWeatherService.getRealtimeWeatherByCode(existedCode)).thenReturn(realtimeWeather);
 
-        mockMvc.perform(get(ENDPOINT + "/" + existedCode)).andExpect(status().isOk()).andDo(print());
+        mockMvc.perform(get(ENDPOINT + "/" + existedCode))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._links.self.href", is("http://localhost/api/v1/realtime/" + existedCode)))
+                .andExpect(jsonPath("$._links.hourly_weather.href", is("http://localhost/api/v1/hourly/" + existedCode)))
+                .andExpect(jsonPath("$._links.daily_weather.href", is("http://localhost/api/v1/daily/"+existedCode)))
+                .andExpect(jsonPath("$._links.fully_weather.href", is("http://localhost/api/v1/fully/" + existedCode)))
+                .andDo(print());
     }
 
     @Test
@@ -188,13 +198,17 @@ public class RealTimeWeatherRestControllerTests {
         realtimeWeather.setLocationCode(locationCode);
         realtimeWeather.setLocation(location);
 
-      //  location.se
+        //  location.se
 
         String requestBody = objectMapper.writeValueAsString(dto);
 
         Mockito.when(realtimeWeatherService.updateRealtimeWeatherByCode(Mockito.eq(locationCode), Mockito.any())).thenReturn(realtimeWeather);
         mockMvc.perform(put(requestURI).contentType(REQUEST_CONTENT_TYPE).content(requestBody))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$._links.self.href", is("http://localhost/api/v1/realtime/" + locationCode)))
+                .andExpect(jsonPath("$._links.hourly_weather.href", is("http://localhost/api/v1/hourly/" + locationCode)))
+                .andExpect(jsonPath("$._links.daily_weather.href", is("http://localhost/api/v1/daily/"+locationCode)))
+                .andExpect(jsonPath("$._links.fully_weather.href", is("http://localhost/api/v1/fully/" + locationCode)))
                 .andDo(print());
 
     }

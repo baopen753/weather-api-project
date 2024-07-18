@@ -2,7 +2,10 @@ package com.baopen753.weatherapiproject.realtimeservices.restcontroller;
 
 import com.baopen753.weatherapiproject.CommonUtility;
 import com.baopen753.weatherapiproject.GeolocationService;
+import com.baopen753.weatherapiproject.dailyweatherservices.restcontroller.DailyWeatherRestController;
+import com.baopen753.weatherapiproject.fullyweatherservices.restcontroller.FullyWeatherRestController;
 import com.baopen753.weatherapiproject.global.ErrorDTO;
+import com.baopen753.weatherapiproject.hourlyweatherservices.restcontroller.HourlyWeatherRestController;
 import com.baopen753.weatherapiproject.locationservices.entity.Location;
 import com.baopen753.weatherapiproject.realtimeservices.dto.RealtimeWeatherDto;
 import com.baopen753.weatherapiproject.realtimeservices.entity.RealtimeWeather;
@@ -12,7 +15,6 @@ import com.baopen753.weatherapiproject.realtimeservices.service.RealtimeWeatherS
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.modelmapper.ModelMapper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +23,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/api/v1/realtime")
@@ -48,27 +53,45 @@ public class RealtimeWeatherRestController {
         Location locationMappedFromIp = geolocationService.getLocation(ipAddress);
         RealtimeWeather realtimeWeather = realtimeWeatherService.getRealtimeWeatherByLocation(locationMappedFromIp);
         RealtimeWeatherDto result = RealtimeWeatherMapper.INSTANCE.entityToDto(realtimeWeather);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(addLinksByIp(result));
     }
 
     @GetMapping("/{code}")
     public ResponseEntity<?> getRealtimeWeatherByLocation(@PathVariable String code) {
         RealtimeWeather realtimeWeather = realtimeWeatherService.getRealtimeWeatherByCode(code);
         RealtimeWeatherDto result = RealtimeWeatherMapper.INSTANCE.entityToDto(realtimeWeather);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(addLinksByCode(result,code));
     }
 
 
     @PutMapping("/{code}")
     public ResponseEntity<?> updateRealtimeWeatherByCode(@RequestBody @Valid RealtimeWeatherDto realtimeWeatherDto, @PathVariable String code) {
-
         RealtimeWeather realtimeWeatherBodyRequest = RealtimeWeatherMapper.INSTANCE.dtoToEntity(realtimeWeatherDto);
         realtimeWeatherBodyRequest.setLocationCode(code);
 
         RealtimeWeather updatedRealtime = realtimeWeatherService.updateRealtimeWeatherByCode(code, realtimeWeatherBodyRequest);
         RealtimeWeatherDto result = RealtimeWeatherMapper.INSTANCE.entityToDto(updatedRealtime);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(addLinksByCode(result,code));
     }
+
+
+    private RealtimeWeatherDto addLinksByIp(RealtimeWeatherDto dto) {
+        dto.add(linkTo(methodOn(RealtimeWeatherRestController.class).getRealtimeWeatherByIpAddress(null)).withSelfRel());
+        dto.add(linkTo(methodOn(HourlyWeatherRestController.class).listHourlyWeatherForecastByIpAddress(null)).withRel("hourly_weather"));
+        dto.add(linkTo(methodOn(DailyWeatherRestController.class).getDailyWeathersByIpAddress(null)).withRel("daily_weather"));
+        dto.add(linkTo(methodOn(FullyWeatherRestController.class).getFullyWeatherByIpAddress(null)).withRel("fully_weather"));
+        return dto;
+    }
+
+
+    private RealtimeWeatherDto addLinksByCode(RealtimeWeatherDto dto, String code) {
+        dto.add(linkTo(methodOn(RealtimeWeatherRestController.class).getRealtimeWeatherByLocation(code)).withSelfRel());
+        dto.add(linkTo(methodOn(HourlyWeatherRestController.class).listHourlyWeatherForecastByCode(code,null)).withRel("hourly_weather"));
+        dto.add(linkTo(methodOn(DailyWeatherRestController.class).getDailyWeathersByCode(code)).withRel("daily_weather"));
+        dto.add(linkTo(methodOn(FullyWeatherRestController.class).getFullyWeatherByCode(code,null)).withRel("fully_weather"));
+        return dto;
+    }
+
 
 
     @ExceptionHandler(RealtimeNotUpdatedException.class)

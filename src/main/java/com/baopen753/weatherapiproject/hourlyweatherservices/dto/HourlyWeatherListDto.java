@@ -16,7 +16,6 @@ import java.util.List;
 
 public class HourlyWeatherListDto {
 
-    @JsonProperty("location")
     private String location;
 
     @JsonProperty("hourly_forecast")

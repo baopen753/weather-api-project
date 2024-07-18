@@ -17,24 +17,19 @@ import org.hibernate.validator.constraints.Length;
 @JsonPropertyOrder({"code", "city_name", "region_name", "country_name", "country_code"})
 public class LocationDto {
 
-    @JsonProperty("code")
     @NotBlank(message = "location code cannot be blank")
     @Length(min = 4, max = 12, message = "location code should be 4-12 in length")
     private String code;
 
-    @JsonProperty("city_name")
     @NotBlank(message = "city_name cannot be blank")
     private String cityName;
 
-    @JsonProperty("region_name")
     @NotNull(message = "region_name cannot be null")
     private String regionName;
 
-    @JsonProperty("country_code")
     @NotBlank(message = "country_code cannot be blank")
     private String countryCode;
 
-    @JsonProperty("country_name")
     @NotBlank(message = "country_name cannot be blank")
     private String countryName;
 
