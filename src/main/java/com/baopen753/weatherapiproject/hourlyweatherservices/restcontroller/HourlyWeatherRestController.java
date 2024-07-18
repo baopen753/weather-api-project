@@ -2,6 +2,8 @@ package com.baopen753.weatherapiproject.hourlyweatherservices.restcontroller;
 
 import com.baopen753.weatherapiproject.CommonUtility;
 import com.baopen753.weatherapiproject.GeolocationService;
+import com.baopen753.weatherapiproject.dailyweatherservices.restcontroller.DailyWeatherRestController;
+import com.baopen753.weatherapiproject.fullyweatherservices.restcontroller.FullyWeatherRestController;
 import com.baopen753.weatherapiproject.hourlyweatherservices.dto.HourlyWeatherDto;
 import com.baopen753.weatherapiproject.hourlyweatherservices.dto.HourlyWeatherListDto;
 import com.baopen753.weatherapiproject.hourlyweatherservices.entity.HourlyWeather;
@@ -10,6 +12,7 @@ import com.baopen753.weatherapiproject.hourlyweatherservices.mapper.HourlyWeathe
 import com.baopen753.weatherapiproject.hourlyweatherservices.service.HourlyWeatherService;
 import com.baopen753.weatherapiproject.locationservices.entity.Location;
 
+import com.baopen753.weatherapiproject.realtimeservices.restcontroller.RealtimeWeatherRestController;
 import jakarta.servlet.http.HttpServletRequest;
 
 import jakarta.validation.Valid;
@@ -24,6 +27,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/api/v1/hourly")
@@ -90,8 +96,9 @@ public class HourlyWeatherRestController {
         if (hourlyWeatherList.isEmpty()) return ResponseEntity.noContent().build();
 
         HourlyWeatherListDto result = entityListToDto(hourlyWeatherList);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(addLinksByIp(result));
     }
+
 
     @GetMapping("/{code}")
     public ResponseEntity<?> listHourlyWeatherForecastByCode(@PathVariable String code, HttpServletRequest request) {
@@ -103,8 +110,9 @@ public class HourlyWeatherRestController {
 
         HourlyWeatherListDto result = entityListToDto(hourlyWeatherList);
 
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(addLinksByCode(result, code));
     }
+
 
     @PutMapping("/{code}")
     public ResponseEntity<?> updateHourlyWeatherForecastByLocation(@RequestBody @Valid List<HourlyWeatherDto> hourlyWeatherDtoList, @PathVariable String code) {
@@ -120,8 +128,28 @@ public class HourlyWeatherRestController {
 
         // convert Entity list ---> listDto object
         HourlyWeatherListDto result = entityListToDto(updatedHourlyWeatherList);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(addLinksByCode(result,code));
     }
+
+
+    private HourlyWeatherListDto addLinksByIp(HourlyWeatherListDto dto) {
+        dto.add(linkTo(methodOn(HourlyWeatherRestController.class).listHourlyWeatherForecastByIpAddress(null)).withSelfRel());
+        dto.add(linkTo(methodOn(RealtimeWeatherRestController.class).getRealtimeWeatherByIpAddress(null)).withRel("realtime"));
+        dto.add(linkTo(methodOn(DailyWeatherRestController.class).getDailyWeathersByIpAddress(null)).withRel("daily_forecast"));
+        dto.add(linkTo(methodOn(FullyWeatherRestController.class).getFullyWeatherByIpAddress(null)).withRel("fully_forecast"));
+        return dto;
+    }
+
+
+    private HourlyWeatherListDto addLinksByCode(HourlyWeatherListDto dto, String code) {
+        dto.add(linkTo(methodOn(HourlyWeatherRestController.class).listHourlyWeatherForecastByCode(code, null)).withSelfRel());
+        dto.add(linkTo(methodOn(RealtimeWeatherRestController.class).getRealtimeWeatherByLocation(code)).withRel("realtime"));
+        dto.add(linkTo(methodOn(DailyWeatherRestController.class).getDailyWeathersByCode(code)).withRel("daily_forecast"));
+        dto.add(linkTo(methodOn(FullyWeatherRestController.class).getFullyWeatherByCode(code, null)).withRel("fully_forecast"));
+        return dto;
+    }
+
+
 }
 
 

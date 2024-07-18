@@ -3,7 +3,10 @@ package com.baopen753.weatherapiproject.hourly;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import static org.hamcrest.CoreMatchers.is;
 
 import com.baopen753.weatherapiproject.GeolocationException;
 import com.baopen753.weatherapiproject.GeolocationService;
@@ -84,7 +87,13 @@ public class HourlyWeatherRestControllerTests {
 
         Mockito.when(hourlyWeatherService.getHourlyWeathersByLocation(locationMappedFromIp, currentOfHour)).thenReturn(List.of(hourlyWeather1, hourlyWeather2));
 
-        mockMvc.perform(get(END_POINT_PATH).header(X_CURRENT_HOUR, String.valueOf(currentOfHour))).andExpect(status().isOk()).andDo(print());
+        mockMvc.perform(get(END_POINT_PATH).header(X_CURRENT_HOUR, String.valueOf(currentOfHour)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._links.self.href", is("http://localhost/api/v1/hourly")))
+                .andExpect(jsonPath("$._links.realtime.href", is("http://localhost/api/v1/realtime")))
+                .andExpect(jsonPath("$._links.daily_forecast.href", is("http://localhost/api/v1/daily")))
+                .andExpect(jsonPath("$._links.fully_forecast.href", is("http://localhost/api/v1/fully")))
+                .andDo(print());
     }
 
     @Test
@@ -146,7 +155,7 @@ public class HourlyWeatherRestControllerTests {
     @Test
     public void testGetHourlyWeatherForecastByCodeShouldReturn200OK() throws Exception {
         String locationCode = "VN_HN";
-        Integer currentHour = 16;
+        Integer currentHour = 10;
 
         Location locationGetFromCode = new Location();
         locationGetFromCode.setCode(locationCode);
@@ -164,7 +173,13 @@ public class HourlyWeatherRestControllerTests {
 
 
         Mockito.when(hourlyWeatherService.getHourlyWeathersByCode(locationGetFromCode.getCode(), currentHour)).thenReturn(List.of(hourlyWeather1, hourlyWeather2));
-        mockMvc.perform(get(END_POINT_PATH + "/" + locationCode).header(X_CURRENT_HOUR, 16)).andExpect(status().isOk()).andDo(print());
+        mockMvc.perform(get(END_POINT_PATH + "/" + locationCode).header(X_CURRENT_HOUR, String.valueOf(currentHour)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._links.self.href", is("http://localhost/api/v1/hourly/"+locationCode)))
+                .andExpect(jsonPath("$._links.realtime.href", is("http://localhost/api/v1/realtime/"+locationCode)))
+                .andExpect(jsonPath("$._links.daily_forecast.href", is("http://localhost/api/v1/daily/"+locationCode)))
+                .andExpect(jsonPath("$._links.fully_forecast.href", is("http://localhost/api/v1/fully/"+locationCode)))
+                .andDo(print());
     }
 
     @Test
@@ -251,11 +266,13 @@ public class HourlyWeatherRestControllerTests {
         Mockito.when(hourlyWeatherService.updateHourlyWeathersByLocationCode(Mockito.eq(locationCode), Mockito.anyList())).thenReturn(hourlyWeatherList);
         mockMvc.perform(put(requestURI).contentType(REQUEST_CONTENT_TYPE).content(requestBody))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$._links.self.href", is("http://localhost/api/v1/hourly/"+locationCode)))
+                .andExpect(jsonPath("$._links.realtime.href", is("http://localhost/api/v1/realtime/"+locationCode)))
+                .andExpect(jsonPath("$._links.daily_forecast.href", is("http://localhost/api/v1/daily/"+locationCode)))
+                .andExpect(jsonPath("$._links.fully_forecast.href", is("http://localhost/api/v1/fully/"+locationCode)))
                 .andDo(print());
 
     }
-
-
 
     @Test
     public void testUpdateHourlyWeatherForecastByCodeShouldReturn404NotFoundDueToLocation() throws Exception {
@@ -277,7 +294,7 @@ public class HourlyWeatherRestControllerTests {
     }
 
     @Test
-    public void testUpdateHourlyWeatherForecastByCodeShouldReturn400BadRequestDuetoEmptyListBody() throws Exception
+    public void testUpdateHourlyWeatherForecastByCodeShouldReturn400BadRequestDueToEmptyListBody() throws Exception
     {
         String locationCode = "VN_HN";
         String requestURI = END_POINT_PATH + "/" + locationCode;

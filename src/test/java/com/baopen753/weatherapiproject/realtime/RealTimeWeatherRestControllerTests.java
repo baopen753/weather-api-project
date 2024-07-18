@@ -1,6 +1,5 @@
 package com.baopen753.weatherapiproject.realtime;
 
-import com.baopen753.weatherapiproject.GeolocationException;
 import com.baopen753.weatherapiproject.GeolocationService;
 import com.baopen753.weatherapiproject.locationservices.entity.Location;
 import com.baopen753.weatherapiproject.locationservices.exception.LocationNotFoundException;
@@ -10,22 +9,13 @@ import com.baopen753.weatherapiproject.realtimeservices.dto.RealtimeWeatherDto;
 import com.baopen753.weatherapiproject.realtimeservices.entity.RealtimeWeather;
 import com.baopen753.weatherapiproject.realtimeservices.restcontroller.RealtimeWeatherRestController;
 import com.baopen753.weatherapiproject.realtimeservices.service.RealtimeWeatherService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ip2location.IP2Location;
-import com.ip2location.IPResult;
-import jakarta.servlet.http.HttpServletRequest;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.web.servlet.MockMvc;
 
 
@@ -103,6 +93,7 @@ public class RealTimeWeatherRestControllerTests {
     @Test
     public void testGetRealtimeShouldReturn200OK() throws Exception {
 
+
         Location location = new Location();
         location.setCountryCode("VN");
         location.setCityName("Ho Chi Minh City");
@@ -125,9 +116,9 @@ public class RealTimeWeatherRestControllerTests {
         mockMvc.perform(get(ENDPOINT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._links.self.href", is("http://localhost/api/v1/realtime")))
-                .andExpect(jsonPath("$._links.hourly_weather.href", is("http://localhost/api/v1/hourly")))
-                .andExpect(jsonPath("$._links.daily_weather.href", is("http://localhost/api/v1/daily")))
-                .andExpect(jsonPath("$._links.fully_weather.href", is("http://localhost/api/v1/fully")))
+                .andExpect(jsonPath("$._links.hourly_forecast.href", is("http://localhost/api/v1/hourly")))
+                .andExpect(jsonPath("$._links.daily_forecast.href", is("http://localhost/api/v1/daily")))
+                .andExpect(jsonPath("$._links.fully_forecast.href", is("http://localhost/api/v1/fully")))
                 .andDo(print());
     }
 
@@ -161,9 +152,9 @@ public class RealTimeWeatherRestControllerTests {
         mockMvc.perform(get(ENDPOINT + "/" + existedCode))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._links.self.href", is("http://localhost/api/v1/realtime/" + existedCode)))
-                .andExpect(jsonPath("$._links.hourly_weather.href", is("http://localhost/api/v1/hourly/" + existedCode)))
-                .andExpect(jsonPath("$._links.daily_weather.href", is("http://localhost/api/v1/daily/"+existedCode)))
-                .andExpect(jsonPath("$._links.fully_weather.href", is("http://localhost/api/v1/fully/" + existedCode)))
+                .andExpect(jsonPath("$._links.hourly_forecast.href", is("http://localhost/api/v1/hourly/" + existedCode)))
+                .andExpect(jsonPath("$._links.daily_forecast.href", is("http://localhost/api/v1/daily/"+existedCode)))
+                .andExpect(jsonPath("$._links.fully_forecast.href", is("http://localhost/api/v1/fully/" + existedCode)))
                 .andDo(print());
     }
 

@@ -2,19 +2,18 @@ package com.baopen753.weatherapiproject.hourlyweatherservices.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.Range;
+import org.springframework.hateoas.RepresentationModel;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Setter
+@Getter
 @Builder
 
-public class HourlyWeatherDto {
+public class HourlyWeatherDto  {
 
     @Range(min = 0, max = 23, message = "Range of hour should be in 0-23")
     private Integer hourOfDay;

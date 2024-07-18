@@ -77,21 +77,20 @@ public class RealtimeWeatherRestController {
 
     private RealtimeWeatherDto addLinksByIp(RealtimeWeatherDto dto) {
         dto.add(linkTo(methodOn(RealtimeWeatherRestController.class).getRealtimeWeatherByIpAddress(null)).withSelfRel());
-        dto.add(linkTo(methodOn(HourlyWeatherRestController.class).listHourlyWeatherForecastByIpAddress(null)).withRel("hourly_weather"));
-        dto.add(linkTo(methodOn(DailyWeatherRestController.class).getDailyWeathersByIpAddress(null)).withRel("daily_weather"));
-        dto.add(linkTo(methodOn(FullyWeatherRestController.class).getFullyWeatherByIpAddress(null)).withRel("fully_weather"));
+        dto.add(linkTo(methodOn(HourlyWeatherRestController.class).listHourlyWeatherForecastByIpAddress(null)).withRel("hourly_forecast"));
+        dto.add(linkTo(methodOn(DailyWeatherRestController.class).getDailyWeathersByIpAddress(null)).withRel("daily_forecast"));
+        dto.add(linkTo(methodOn(FullyWeatherRestController.class).getFullyWeatherByIpAddress(null)).withRel("fully_forecast"));
         return dto;
     }
 
 
     private RealtimeWeatherDto addLinksByCode(RealtimeWeatherDto dto, String code) {
         dto.add(linkTo(methodOn(RealtimeWeatherRestController.class).getRealtimeWeatherByLocation(code)).withSelfRel());
-        dto.add(linkTo(methodOn(HourlyWeatherRestController.class).listHourlyWeatherForecastByCode(code,null)).withRel("hourly_weather"));
-        dto.add(linkTo(methodOn(DailyWeatherRestController.class).getDailyWeathersByCode(code)).withRel("daily_weather"));
-        dto.add(linkTo(methodOn(FullyWeatherRestController.class).getFullyWeatherByCode(code,null)).withRel("fully_weather"));
+        dto.add(linkTo(methodOn(HourlyWeatherRestController.class).listHourlyWeatherForecastByCode(code,null)).withRel("hourly_forecast"));
+        dto.add(linkTo(methodOn(DailyWeatherRestController.class).getDailyWeathersByCode(code)).withRel("daily_forecast"));
+        dto.add(linkTo(methodOn(FullyWeatherRestController.class).getFullyWeatherByCode(code,null)).withRel("fully_forecast"));
         return dto;
     }
-
 
 
     @ExceptionHandler(RealtimeNotUpdatedException.class)

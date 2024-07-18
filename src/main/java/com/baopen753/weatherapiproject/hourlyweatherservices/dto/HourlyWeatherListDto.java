@@ -1,20 +1,19 @@
 package com.baopen753.weatherapiproject.hourlyweatherservices.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Setter
+@Getter
 @Builder
 
-public class HourlyWeatherListDto {
+public class HourlyWeatherListDto extends RepresentationModel<HourlyWeatherListDto> {
 
     private String location;
 
