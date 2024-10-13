@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 
 /*
@@ -21,7 +22,7 @@ public class GeolocationService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeolocationService.class);
     private static final IP2Location ip2Locator = new IP2Location();
-    private final String DB_PATH = "ip2location/ip2location-lite-db3.bin/IP2LOCATION-LITE-DB3.BIN";
+    private final String DB_PATH = "/ip2location/IP2LOCATION-LITE-DB3.BIN";
 
 
     /*
@@ -29,7 +30,10 @@ public class GeolocationService {
      */
     public GeolocationService() {
         try {
-            ip2Locator.Open(DB_PATH);
+            InputStream inputStream = getClass().getResourceAsStream(DB_PATH);
+            byte[] data = inputStream.readAllBytes();
+            ip2Locator.Open(data);
+            inputStream.close();
         } catch (IOException ex) {
             LOGGER.error(ex.getMessage(), ex);
         }
