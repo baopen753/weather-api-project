@@ -30,17 +30,16 @@ public class LocationRestController {
 
     private LocationService service;
 
-    public LocationRestController(LocationService service ) {
+    public LocationRestController(LocationService service) {
         this.service = service;
     }
 
 
-
-    @GetMapping
+    @Deprecated
     public ResponseEntity<?> getLocations(@RequestParam("pageSize") @Min(value = 4, message = "Minimum of page size is 4") @Max(value = 50, message = "Maximun of page size is 50") Integer pageSize, @RequestParam("pageNum") @Positive(message = "Page number must be greater than 0") Integer pageNum) {
 
         List<Location> locationList = service.findAllLocations();
-        List<LocationDto> dtoList = locationList.stream().map(location -> LocationMapper.INSTANCE.entityToDto(location)).toList();
+        List<LocationDto> dtoList = locationList.stream().map(LocationMapper.INSTANCE::entityToDto).toList();
 
         if (dtoList.isEmpty()) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(dtoList);

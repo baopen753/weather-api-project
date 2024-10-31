@@ -28,7 +28,7 @@ import java.io.IOException;
 @SpringJUnitConfig(GeolocationService.class)   // define a test context, and tell Spring that can use only GeolocationService bean within this scope
 public class IP2LocationTests {
 
-    private final String DbPath = "ip2location/ip2location-lite-db3.bin/IP2LOCATION-LITE-DB3.BIN";
+    private final String DB_PATH = "src/main/resources/ip2location/IP2LOCATION-LITE-DB3.BIN";
 
     @Autowired
     private GeolocationService geolocationService;
@@ -38,7 +38,7 @@ public class IP2LocationTests {
 
         // initialize ip database
         IP2Location ip2Locator = new IP2Location();
-        ip2Locator.Open(DbPath);
+        ip2Locator.Open(DB_PATH);
 
         String invalidIp = "abc";
 
@@ -52,7 +52,7 @@ public class IP2LocationTests {
         String validIp = "1.1.1.1";   // private ip
 
         IP2Location ip2Locator = new IP2Location();
-        ip2Locator.Open(DbPath);
+        ip2Locator.Open(DB_PATH);
 
         IPResult result = ip2Locator.IPQuery(validIp);
         Assertions.assertThat(result.getStatus()).isEqualTo("OK");

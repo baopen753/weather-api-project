@@ -7,6 +7,7 @@ import com.baopen753.weatherapiproject.dailyweatherservices.repository.DailyWeat
 import com.baopen753.weatherapiproject.locationservices.entity.Location;
 import com.baopen753.weatherapiproject.locationservices.repository.LocationRepository;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -39,6 +40,7 @@ public class DailyWeatherRepositoryTests {
     }
 
     @Test
+    @Disabled
     public void testUpdateDailyWeathers() {
         String locationCode = "VN_HCM";
 

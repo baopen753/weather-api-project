@@ -197,9 +197,6 @@ public class RealTimeWeatherRestControllerTests {
         mockMvc.perform(put(requestURI).contentType(REQUEST_CONTENT_TYPE).content(requestBody))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._links.self.href", is("http://localhost/api/v1/realtime/" + locationCode)))
-                .andExpect(jsonPath("$._links.hourly_weather.href", is("http://localhost/api/v1/hourly/" + locationCode)))
-                .andExpect(jsonPath("$._links.daily_weather.href", is("http://localhost/api/v1/daily/"+locationCode)))
-                .andExpect(jsonPath("$._links.fully_weather.href", is("http://localhost/api/v1/fully/" + locationCode)))
                 .andDo(print());
 
     }

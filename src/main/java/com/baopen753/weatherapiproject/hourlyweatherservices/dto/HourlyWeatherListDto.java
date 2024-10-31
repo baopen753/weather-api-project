@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @Setter
 @Getter
-@Builder
+
 
 public class HourlyWeatherListDto extends RepresentationModel<HourlyWeatherListDto> {
 
