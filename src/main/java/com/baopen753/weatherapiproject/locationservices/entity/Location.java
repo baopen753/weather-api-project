@@ -57,7 +57,8 @@ public class Location {
     private List<HourlyWeather> hourlyWeatherList = new ArrayList<HourlyWeather>();
 
 
-    @OneToMany(mappedBy = "dailyWeatherId.location",cascade = CascadeType.ALL, orphanRemoval = true)   // specify the 'location' field of dailyWeatherId is the inverse side of this bidirectional relationship
+    @OneToMany(mappedBy = "dailyWeatherId.location", cascade = CascadeType.ALL, orphanRemoval = true)
+    // specify the 'location' field of dailyWeatherId is the inverse side of this bidirectional relationship
     private List<DailyWeather> dailyWeatherList = new ArrayList<DailyWeather>();
 
     public Location(String code, String cityName, String countryName, String regionName, String countryCode, boolean enabled, boolean trashed) {
@@ -80,7 +81,7 @@ public class Location {
 
     @Override
     public String toString() {
-        return this.regionName + ", " + this.cityName + ", " + this.countryName;
+        return this.code + " => " + this.regionName + ", " + this.cityName + ", " + this.countryName;
     }
 
 

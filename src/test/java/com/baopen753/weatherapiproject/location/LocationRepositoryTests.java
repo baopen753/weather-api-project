@@ -7,10 +7,15 @@ import com.baopen753.weatherapiproject.locationservices.repository.LocationRepos
 import com.baopen753.weatherapiproject.realtimeservices.entity.RealtimeWeather;
 import com.baopen753.weatherapiproject.realtimeservices.repository.RealtimeWeatherRepository;
 import org.assertj.core.api.Assertions;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Rollback;
 
 import java.util.Date;
@@ -27,12 +32,6 @@ public class LocationRepositoryTests {
     @Autowired
     private RealtimeWeatherRepository realtimeWeatherRepository;
 
-//    @Test
-//    public void testListSuccess() {
-//        List<Location> locations = locationRepository.
-//        Assertions.assertThat(locations).isNotEmpty();
-//        locations.stream().forEach(System.out::println);
-//    }
 
     @Test
     public void testAddSuccess() {
@@ -144,5 +143,43 @@ public class LocationRepositoryTests {
         List<HourlyWeather> hourlyWeatherListInDb = locationInDb.getHourlyWeatherList();
 
         Assertions.assertThat(hourlyWeatherListInDb).isNotNull();
+    }
+
+    @Test
+    public void testGetFirstPageOfAvailableLocation() {
+        int pageSize = 5;
+        int pageNumber = 0;   // 0-based indexing
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Page<Location> locationPage = locationRepository.findAllLocations(pageable);
+
+        Assertions.assertThat(locationPage.getSize()).isEqualTo(pageSize);
+
+        locationPage.forEach(System.out::println);
+    }
+
+    @Test
+    public void testGetPageWithNoContentOfAvailableLocation() {
+        int pageSize = 5;
+        int pageNumber = 3;
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Page<Location> locationPage = locationRepository.findAllLocations(pageable);
+
+        Assertions.assertThat(locationPage).isEmpty();
+    }
+
+    @Test
+    public void testGetSecondPageWithSortOfAvailableLocation() {
+        int pageSize = 5;
+        int pageNumber = 0;
+
+        Sort sort = Sort.by("code").ascending();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        Page<Location> locationPage = locationRepository.findAllLocations(pageable);
+
+        Assertions.assertThat(locationPage.getSize()).isEqualTo(pageSize);
+        locationPage.forEach(System.out::println);
     }
 }
