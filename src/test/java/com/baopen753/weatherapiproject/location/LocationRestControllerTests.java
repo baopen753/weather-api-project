@@ -15,8 +15,13 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.*;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -98,7 +103,7 @@ public class LocationRestControllerTests {
     }
 
     @Test
-    public void testPostShouldReturn400Badquest() throws Exception {
+    public void testPostShouldReturn400BadRequest() throws Exception {
         // test with exsiting location
         Location testLocation = null;
 
@@ -111,7 +116,7 @@ public class LocationRestControllerTests {
 
     @Test
     @Disabled
-    public void testPostShouldReturn409Confict() throws Exception {
+    public void testPostShouldReturn409Conflict() throws Exception {
         // create existing location
         Location testedLocation = new Location("VN_HN", "Hanoi", "Myduc", "Socialist Republic of Vietnam", "84", true, false);
 
@@ -146,13 +151,11 @@ public class LocationRestControllerTests {
         LocationNotFoundException exception = new LocationNotFoundException(testedLocation.getCode());
 
         // use Mockito to create testing environment by mocking LocationService object
-       // Mockito.when(locationService.update(testedLocation)).thenThrow(exception);
+        // Mockito.when(locationService.update(testedLocation)).thenThrow(exception);
         Mockito.doThrow(exception).when(locationService).update(testedLocation);
 
         // use MockMvc to perform HTTP request
-        mockMvc.perform(put(ENDPOINT).content(requestBody).contentType(REQUEST_CONTENT_TYPE))
-                .andExpect(status().isNotFound())
-                .andDo(print());
+        mockMvc.perform(put(ENDPOINT).content(requestBody).contentType(REQUEST_CONTENT_TYPE)).andExpect(status().isNotFound()).andDo(print());
     }
 
     @Test
@@ -189,10 +192,10 @@ public class LocationRestControllerTests {
     public void testUpdateShouldReturn400BadRequest() throws Exception {
 
         LocationDto testedLocation = new LocationDto();
-                                                      // create lacked properties location
-                                                      // locationId shouldn't be lacked
+        // create lacked properties location
+        // locationId shouldn't be lacked
         testedLocation.setCode("ABCDF");
-      //  testedLocation.setRegionName("South");
+        //  testedLocation.setRegionName("South");
         testedLocation.setCountryCode("VN");
         testedLocation.setCountryName("Socalist Republic of Vietnam");
         testedLocation.setCityName("Longan");
@@ -245,6 +248,78 @@ public class LocationRestControllerTests {
         String requestBody = objectMapper.writeValueAsString(testedLocation);
 
         mockMvc.perform(post(ENDPOINT).content(requestBody).contentType(REQUEST_CONTENT_TYPE)).andExpect(status().isCreated()).andDo(print());
+    }
+
+    @Test
+    public void testListLocationByPageShouldBeReturn204NoContent() throws Exception {
+
+        Mockito.when(locationService.findAllLocationsByPage(Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString())).thenReturn(Page.empty());
+
+        mockMvc.perform(get(ENDPOINT))
+                .andExpect(status().isNoContent())
+                .andDo(print());
+    }
+
+    @Test
+    public void testListLocationByPageShouldBeReturn200OK() throws Exception {
+        int pageNum = 2;
+        int pageSize = 5;
+        String sortField = "code";
+
+        Location location = new Location();
+        location.setCode("USA_LA");
+        location.setCityName("Los Angeles");
+        location.setRegionName("California");
+        location.setCountryName("United States of America");
+        location.setCountryCode("USA");
+
+        Page<Location> page = new PageImpl<>(List.of(location));
+        Mockito.when(locationService.findAllLocationsByPage(Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString())).thenReturn(page);
+
+
+        mockMvc.perform(get(ENDPOINT)
+                        .param("pageNum", "1")
+                        .param("pageSize", "5")
+                        .param("sortField", "code"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].code", is("USA_LA")))
+                .andExpect(jsonPath("$[0].city_name", is("Los Angeles")))
+                .andExpect(jsonPath("$[0].region_name", is("California")))
+                .andExpect(jsonPath("$[0].country_name", is("United States of America")))
+                .andExpect(jsonPath("$[0].country_code", is("USA")))
+                .andDo(print());
+    }
+
+    @Test
+    public void testListLocationByPageShouldReturn400BadRequest() throws Exception {
+
+        int page = 2;
+        int size = 2;
+        String sort = "code";
+
+        mockMvc.perform(get(ENDPOINT)
+                        .param("page", String.valueOf(page))
+                        .param("size", String.valueOf(size))
+                        .param("sort", sort))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error[0]", is("Minimum of size is 4")))
+                .andDo(print());
+    }
+
+    @Test
+    public void testListLocationByPageShouldReturn400BadRequestDueToInValidSortField() throws Exception {
+        int page = 2;
+        int size = 4;
+        String sort = "codeSort";
+
+        mockMvc.perform(get(ENDPOINT)
+                        .param("page", String.valueOf(page))
+                        .param("size", String.valueOf(size))
+                        .param("sort", sort))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error[0]", is("Invalid field " + sort + ". Try again !!")))
+                        .andDo(print());
+
     }
 
 

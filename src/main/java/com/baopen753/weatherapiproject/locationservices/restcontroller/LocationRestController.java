@@ -4,23 +4,29 @@ package com.baopen753.weatherapiproject.locationservices.restcontroller;
  *    1. This RestController class should be directly called Service method . No need to catch Exception due to the existing of GlobalHandleException
  */
 
+import com.baopen753.weatherapiproject.hourlyweatherservices.exception.BadRequestException;
 import com.baopen753.weatherapiproject.locationservices.dto.LocationDto;
 import com.baopen753.weatherapiproject.locationservices.entity.Location;
 import com.baopen753.weatherapiproject.locationservices.mapper.LocationMapper;
 import com.baopen753.weatherapiproject.locationservices.service.LocationService;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
 
+import jakarta.validation.ValidationException;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
+
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 
 import java.net.URI;
-import java.util.List;
+import java.util.*;
 
 
 @RestController
@@ -28,19 +34,42 @@ import java.util.List;
 @Validated
 public class LocationRestController {
 
-    private LocationService service;
+    private final LocationService service;
 
     public LocationRestController(LocationService service) {
         this.service = service;
     }
 
+    private final Map<String, String> properties = Map.of(
+            "code", "code",
+            "city_name", "cityName",
+            "country_name", "countryName",
+            "region_name", "regionName",
+            "country_code", "countryCode"
+    );
 
     @Deprecated
-    public ResponseEntity<?> getLocations(@RequestParam("pageSize") @Min(value = 4, message = "Minimum of page size is 4") @Max(value = 50, message = "Maximun of page size is 50") Integer pageSize, @RequestParam("pageNum") @Positive(message = "Page number must be greater than 0") Integer pageNum) {
+    public ResponseEntity<?> getLocations(@RequestParam("pageSize") @Min(value = 4, message = "Minimum of page size is 4") @Max(value = 50, message = "Maximun of page size is 50") Integer pageSize,
+                                          @RequestParam("pageNum") @Positive(message = "Page number must be greater than 0") Integer pageNum) {
 
         List<Location> locationList = service.findAllLocations();
         List<LocationDto> dtoList = locationList.stream().map(LocationMapper.INSTANCE::entityToDto).toList();
 
+        if (dtoList.isEmpty()) return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(dtoList);
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getLocations(
+            @RequestParam(value = "page", required = false, defaultValue = "1") @Min(value = 1, message = "Minimum of page is 1") Integer pageNum,
+            @RequestParam(value = "size", required = false, defaultValue = "4") @Min(value = 4, message = "Minimum of size is 4") @Max(value = 10, message = "Maximum of size is 10") Integer pageSize,
+            @RequestParam(value = "sort", required = false, defaultValue = "code") String sort
+    ) {
+        if (!properties.containsKey(sort))
+            throw new BadRequestException("Invalid field " + sort + ". Try again !!");
+
+        Page<Location> locations = service.findAllLocationsByPage(pageNum - 1, pageSize, sort);
+        List<LocationDto> dtoList = locations.stream().map(LocationMapper.INSTANCE::entityToDto).toList();
         if (dtoList.isEmpty()) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(dtoList);
     }
@@ -68,7 +97,6 @@ public class LocationRestController {
         LocationDto dto = LocationMapper.INSTANCE.entityToDto(updatedLocation);
         return ResponseEntity.ok(dto);
     }
-
 
     @DeleteMapping("{code}")
     public ResponseEntity<?> deleteLocation(@PathVariable String code) {

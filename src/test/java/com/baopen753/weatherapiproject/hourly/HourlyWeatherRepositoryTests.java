@@ -53,19 +53,19 @@ public class HourlyWeatherRepositoryTests {
 
         Assertions.assertThat(hourlyWeatherList).isNotNull();
         System.out.println(hourlyWeatherList.size());
-        hourlyWeatherList.stream().forEach(System.out::println);
+        hourlyWeatherList.forEach(System.out::println);
     }
 
     @Test
     public void testGetHourlyWeatherFindByLocationCodeNotFound() {
-        String locationCode = "VN_HIHI";
+        String locationCode = "VN_HI";
         int hourOfDay = 12;
 
         List<HourlyWeather> hourlyWeatherList = hourlyWeatherRepository.findHourlyWeatherByLocationCode(locationCode, hourOfDay);
 
         Assertions.assertThat(hourlyWeatherList).isEmpty();
         System.out.println(hourlyWeatherList.size());
-        hourlyWeatherList.stream().forEach(System.out::println);
+        hourlyWeatherList.forEach(System.out::println);
     }
 
     @Test
@@ -104,7 +104,7 @@ public class HourlyWeatherRepositoryTests {
                 .hourlyWeatherId(id4)
                 .precipitation(10)
                 .temperature(10)
-                .status("Freezeze")
+                .status("Freeze")
                 .build();
 
         List<HourlyWeather> input = List.of(hourlyWeather1, hourlyWeather2, hourlyWeather3, hourlyWeather4);
@@ -114,7 +114,7 @@ public class HourlyWeatherRepositoryTests {
         Assertions.assertThat(result).isNotNull();
         Assertions.assertThat(result.size()).isEqualTo(4);
 
-        result.stream().forEach(System.out::println);
+        result.forEach(System.out::println);
 
     }
 

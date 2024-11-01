@@ -6,7 +6,9 @@ import com.baopen753.weatherapiproject.locationservices.exception.LocationNotFou
 import com.baopen753.weatherapiproject.locationservices.repository.LocationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +29,11 @@ public class LocationService {
         return locationRepository.findAll();
     }
 
-
+    public Page<Location> findAllLocationsByPage(int pageNum, int pageSize, String sortField) {
+        Sort sort = Sort.by(sortField).ascending();
+        Pageable locationPageable = PageRequest.of(pageNum, pageSize, sort);
+        return locationRepository.findAllLocations(locationPageable);
+    }
 
     public Location findLocationByCode(String code) {
         Location location = locationRepository.findLocationsByCode(code);
